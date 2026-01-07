@@ -1,0 +1,98 @@
+# ===========================
+# AicodeX Multi-Language .gitignore
+# ===========================
+
+# ===========================
+# General
+# ===========================
+.env
+.env.local
+.env.*.local
+*.log
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+*.bak
+*.swp
+*.swo
+*~
+
+# ===========================
+# IDE / Editor
+# ===========================
+.idea/
+.vscode/
+*.code-workspace
+*.sublime-workspace
+*.sublime-project
+
+# ===========================
+# Build output
+# ===========================
+dist/
+build/
+out/
+artifacts/
+
+# ===========================
+# Python
+# ===========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+.eggs/
+*.egg-info/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+# ===========================
+# Rust
+# ===========================
+src/rust/target/
+**/*.rs.bk
+
+# ===========================
+# TypeScript / JavaScript
+# ===========================
+node_modules/
+*.js.map
+*.d.ts.map
+src/typescript/dist/
+coverage/
+.npm/
+.eslintcache
+
+# ===========================
+# Go
+# ===========================
+src/go/bin/
+*.exe
+*.exe~
+*.dll
+*.dylib
+*.test
+*.out
+go.work
+go.work.sum
+
+# ===========================
+# CI/CD artifacts
+# ===========================
+*.sarif
+*.sbom.json
+sbom/
+reports/

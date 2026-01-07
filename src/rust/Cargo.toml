@@ -1,0 +1,29 @@
+[package]
+name = "aicodex"
+version = "0.1.0"
+edition = "2021"
+authors = ["AicodeX Contributors"]
+description = "AicodeX - A companion overlay code engine with hotkey-enabled features"
+license = "MIT"
+repository = "https://github.com/NaTo1000/AicodeX"
+
+[dependencies]
+
+[dev-dependencies]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[[bin]]
+name = "aicodex"
+path = "src/main.rs"
+
+[lib]
+name = "aicodex_lib"
+path = "src/lib.rs"
