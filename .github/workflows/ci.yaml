@@ -27,16 +27,38 @@ jobs:
           mkdir -p build
 
       - name: Install
-        run: echo "No dependencies to install"
+        run: |
+          set -euo pipefail
+          if [ -f package.json ]; then
+            npm ci
+          elif [ -f requirements.txt ]; then
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+          else
+            echo "No dependency manifest found; skipping install"
+          fi
 
       - name: Lint/Format
-        run: echo "No lint or format configuration present"
+        run: |
+          set -euo pipefail
+          if [ -f package.json ]; then
+            npm run lint --if-present
+            npm run format --if-present
+          else
+            echo "No lint or format configuration present; skipping"
+          fi
 
       - name: Tests
-        run: echo "No tests available to run"
+        run: |
+          set -euo pipefail
+          if [ -f package.json ]; then
+            npm test --if-present
+          else
+            echo "No tests available to run; skipping"
+          fi
 
       - name: Build
-        run: echo "AicodeX placeholder build output" > build/README.md
+        run: echo "AiCodeX placeholder build output" > build/README.md
 
       - name: Package
         run: |
