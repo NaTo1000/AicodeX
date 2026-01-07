@@ -36,15 +36,17 @@ build_rust() {
         return
     fi
     
+    local binary_path
     if [ "$BUILD_MODE" = "release" ]; then
         cargo build --release
+        binary_path="target/release/aicodex"
         echo "✓ Rust release build complete"
-        echo "Binary: target/release/aicodex"
     else
         cargo build
+        binary_path="target/debug/aicodex"
         echo "✓ Rust debug build complete"
-        echo "Binary: target/debug/aicodex"
     fi
+    echo "Binary: $binary_path"
 }
 
 build_typescript() {
