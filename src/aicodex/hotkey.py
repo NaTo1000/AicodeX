@@ -2,7 +2,7 @@
 Hotkey management for AicodeX.
 """
 
-from typing import Dict, Callable, Optional
+from typing import Dict, Callable
 
 
 class HotkeyManager:
@@ -34,7 +34,7 @@ class HotkeyManager:
             del self.hotkeys[key_combo]
             print(f"Unregistered hotkey: {key_combo}")
 
-    def trigger(self, key_combo: str) -> Optional[bool]:
+    def trigger(self, key_combo: str) -> bool:
         """
         Trigger a hotkey callback.
 
