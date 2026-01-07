@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -48,7 +51,8 @@ jobs:
             if pip install -e ".[dev]"; then
               echo "Installed Python project with dev extras"
             else
-              echo "Editable install with dev extras failed (optional dev dependencies may be missing); retrying without extras"
+              DEV_INSTALL_EXIT=$?
+              echo "Editable install with dev extras failed (exit code ${DEV_INSTALL_EXIT}); retrying without extras"
               pip install -e .
             fi
           elif [ -f requirements.txt ]; then
@@ -80,7 +84,7 @@ jobs:
           if [ -f package.json ]; then
             npm test --if-present
           elif [ -f pyproject.toml ] || [ -f requirements.txt ] || [ -f Pipfile ]; then
-            if [ -d tests ] || compgen -G "*_test.py" > /dev/null || compgen -G "test_*.py" > /dev/null; then
+            if [ -d tests ] || compgen -G "*_test.py" > /dev/null 2>&1 || compgen -G "test_*.py" > /dev/null 2>&1; then
               if command -v pytest >/dev/null 2>&1; then
                 pytest
               else
@@ -100,6 +104,7 @@ jobs:
           echo "artifact=${NAME}" > "${BUILD_FILE}"
           echo "version=${VERSION}" >> "${BUILD_FILE}"
           echo "arch=${ARCH}" >> "${BUILD_FILE}"
+          echo "note=placeholder build output for CI pipeline validation" >> "${BUILD_FILE}"
 
       - name: Package
         run: |
