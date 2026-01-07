@@ -1,0 +1,30 @@
+{
+  "hotkeys": {
+    "ctrl+shift+a": "show_overlay",
+    "ctrl+shift+h": "hide_overlay",
+    "ctrl+shift+c": "copy_code",
+    "ctrl+shift+v": "paste_code",
+    "ctrl+shift+s": "save_snapshot"
+  },
+  "theme": "dark",
+  "opacity": 0.9,
+  "overlay": {
+    "position": "top-right",
+    "width": 400,
+    "height": 600,
+    "autoHide": true,
+    "hideDelay": 3000
+  },
+  "features": {
+    "codeHighlighting": true,
+    "autoComplete": true,
+    "syntaxChecking": true,
+    "aiAssistance": false
+  },
+  "logging": {
+    "level": "info",
+    "file": "~/.aicodex/logs/aicodex.log",
+    "maxSize": "10MB",
+    "maxFiles": 5
+  }
+}
