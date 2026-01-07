@@ -1,6 +1,6 @@
 # AicodeX
 
-its a companion overlay code engine with a fair few really awesome features its hot key enabled and highly customisable
+It's a companion overlay code engine with a fair few really awesome features. It's hotkey-enabled and highly customizable.
 
 ## Overview
 - **Name:** AicodeX  
@@ -13,7 +13,7 @@ its a companion overlay code engine with a fair few really awesome features its 
 ## Repository and setup
 - Branches: `main` (stable) and `develop` (integration).
 - Dependencies managed with language-native tools and lockfiles:
-  - Python: `python -m venv .venv && pip install -r requirements.txt` (track with `requirements.txt`/`poetry.lock`).
+  - Python: `python -m venv .venv && pip install -r requirements.txt` (or Poetry with `poetry.lock`—choose one workflow per environment).
   - Rust: `cargo fetch` / `cargo build` (track with `Cargo.lock`).
   - TypeScript: `npm ci` (track with `package-lock.json`).
 - Configure CI secrets for signing, registry tokens, and release publishing.
