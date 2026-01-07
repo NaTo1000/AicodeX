@@ -1,0 +1,48 @@
+{
+  "name": "aicodex",
+  "version": "0.1.0",
+  "description": "A companion overlay code engine with hotkey enabled and highly customizable features",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,json}\"",
+    "clean": "rm -rf dist node_modules",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "code-engine",
+    "overlay",
+    "hotkey",
+    "developer-tools"
+  ],
+  "author": "NaTo1000",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NaTo1000/AicodeX.git"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.5.0",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

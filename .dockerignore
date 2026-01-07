@@ -1,0 +1,38 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Documentation
+*.md
+docs/
+
+# Build artifacts
+target/
+dist/
+build/
+*.egg-info/
+node_modules/
+
+# Tests
+tests/
+test/
+**/*_test.rs
+**/*_test.py
+**/*.test.ts
+*.spec.*
+
+# Development
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Misc
+tmp/
+*.log

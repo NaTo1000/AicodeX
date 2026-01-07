@@ -1,0 +1,234 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ created ]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: [python, rust, typescript]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      if: matrix.language == 'python'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Lint Python
+      if: matrix.language == 'python'
+      run: |
+        pip install black flake8 isort mypy
+        black --check src/aicodex tests || true
+        flake8 src/aicodex tests --max-line-length=100 || true
+        isort --check-only src/aicodex tests || true
+        
+    - name: Set up Rust
+      if: matrix.language == 'rust'
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        components: rustfmt, clippy
+        
+    - name: Lint Rust
+      if: matrix.language == 'rust'
+      run: |
+        cargo fmt -- --check
+        cargo clippy -- -D warnings
+        
+    - name: Set up Node.js
+      if: matrix.language == 'typescript'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Lint TypeScript
+      if: matrix.language == 'typescript'
+      run: |
+        npm ci
+        npm run lint
+        npm run format:check
+
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        language: [python, rust, typescript]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      if: matrix.language == 'python'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Test Python
+      if: matrix.language == 'python'
+      run: |
+        pip install -e ".[dev]"
+        pytest -v --cov=aicodex --cov-report=xml --cov-report=term
+        
+    - name: Set up Rust
+      if: matrix.language == 'rust'
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+        
+    - name: Test Rust
+      if: matrix.language == 'rust'
+      run: cargo test --all-features --verbose
+        
+    - name: Set up Node.js
+      if: matrix.language == 'typescript'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Test TypeScript
+      if: matrix.language == 'typescript'
+      run: |
+        npm ci
+        npm run test:coverage
+        
+    - name: Upload coverage
+      if: matrix.os == 'ubuntu-latest'
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./coverage.xml,./coverage/lcov.info
+        flags: ${{ matrix.language }}
+        fail_ci_if_error: false
+
+  build:
+    name: Build
+    needs: [lint, test]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: linux
+          - os: windows-latest
+            artifact_name: windows
+          - os: macos-latest
+            artifact_name: macos
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        
+    - name: Set up Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Build All
+      shell: bash
+      run: |
+        chmod +x scripts/*.sh
+        ./scripts/build.sh release all
+        
+    - name: Package
+      shell: bash
+      run: |
+        ./scripts/package.sh
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: aicodex-${{ matrix.artifact_name }}
+        path: artifacts/
+        retention-days: 30
+
+  docker:
+    name: Build Docker Image
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to GitHub Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha
+          
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  release:
+    name: Create Release
+    if: github.event_name == 'release'
+    needs: [build, docker]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4.1.3
+      with:
+        path: release-artifacts
+        
+    - name: Create release archives
+      run: |
+        cd release-artifacts
+        for dir in */; do
+          tar -czf "${dir%/}.tar.gz" "$dir"
+        done
+        
+    - name: Upload to release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: release-artifacts/*.tar.gz
+        generate_release_notes: true

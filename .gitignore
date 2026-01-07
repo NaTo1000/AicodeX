@@ -1,0 +1,77 @@
+# Build artifacts
+/target/
+/dist/
+/build/
+/artifacts/
+*.pyc
+__pycache__/
+*.so
+*.dylib
+*.dll
+*.exe
+*.wasm
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+/vendor/
+
+# Python
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg
+.tox/
+.venv/
+venv/
+ENV/
+env/
+
+# Rust
+Cargo.lock
+*.rs.bk
+*.pdb
+
+# TypeScript
+*.tsbuildinfo
+*.js.map
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# CI/CD
+*.log
+.env
+.env.local
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Test outputs
+coverage/
+*.profraw
+*.gcda
+*.gcno
+
+# Artifacts
+*.tar.gz
+*.zip
+*.deb
+*.rpm
+*.dmg
+*.msi
+*.AppImage
+
+# Temporary files
+/tmp/
+*.tmp
+*.temp
