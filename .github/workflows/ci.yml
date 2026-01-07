@@ -20,6 +20,10 @@ env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
 
+# Default permissions for all jobs - principle of least privilege
+permissions:
+  contents: read
+
 jobs:
   #----------------------------------------------------------------------------
   # Step 1: Clean and Setup
