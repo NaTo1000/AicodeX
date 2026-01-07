@@ -1,0 +1,37 @@
+[package]
+name = "aicodex"
+version = "0.1.0"
+edition = "2021"
+authors = ["NaTo1000"]
+description = "A companion overlay code engine with hotkey support and high customizability"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/NaTo1000/AicodeX"
+
+[lib]
+path = "src/rust/lib.rs"
+
+[[bin]]
+name = "aicodex"
+path = "src/rust/main.rs"
+
+[dependencies]
+
+[dev-dependencies]
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+strip = true
+
+[lints.rust]
+unsafe_code = "warn"
+
+[lints.clippy]
+all = "warn"
+pedantic = "warn"

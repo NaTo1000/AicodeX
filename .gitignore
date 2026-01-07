@@ -1,0 +1,51 @@
+# Build artifacts
+/target/
+/dist/
+/build/
+*.egg-info/
+
+# Dependencies
+/node_modules/
+/.venv/
+/venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+/coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Rust
+Cargo.lock
+*.rlib
+*.rmeta
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+
+# Package artifacts
+*.tar.gz
+*.zip
+*.whl
