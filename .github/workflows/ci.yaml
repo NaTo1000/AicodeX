@@ -13,11 +13,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
       - name: Derive version and architecture
         run: |
-          DEFAULT_VERSION="${VERSION:-0.0.0}"
-          RESOLVED_VERSION="$(git describe --tags --abbrev=0 2>/dev/null || echo "${DEFAULT_VERSION}")"
+          RESOLVED_VERSION="$(git describe --tags --always 2>/dev/null || echo "${VERSION}")"
           echo "VERSION=${RESOLVED_VERSION}" >> "$GITHUB_ENV"
           echo "ARCH=$(uname -m)" >> "$GITHUB_ENV"
 
@@ -30,10 +41,25 @@ jobs:
         run: |
           set -euo pipefail
           if [ -f package.json ]; then
+            echo "Detected package.json; running npm ci"
             npm ci
+          elif [ -f pyproject.toml ] || [ -f setup.py ]; then
+            python -m pip install --upgrade pip
+            if pip install -e ".[dev]"; then
+              echo "Installed Python project with dev extras"
+            else
+              echo "Editable install with dev extras failed (optional dev dependencies may be missing); retrying without extras"
+              pip install -e .
+            fi
           elif [ -f requirements.txt ]; then
+            echo "Detected requirements.txt; installing with pip"
             python -m pip install --upgrade pip
             pip install -r requirements.txt
+          elif [ -f Pipfile ]; then
+            echo "Detected Pipfile; installing via pipenv"
+            python -m pip install --upgrade pip
+            pip install pipenv
+            pipenv install --dev
           else
             echo "No dependency manifest found; skipping install"
           fi
@@ -53,12 +79,27 @@ jobs:
           set -euo pipefail
           if [ -f package.json ]; then
             npm test --if-present
+          elif [ -f pyproject.toml ] || [ -f requirements.txt ] || [ -f Pipfile ]; then
+            if [ -d tests ] || compgen -G "*_test.py" > /dev/null || compgen -G "test_*.py" > /dev/null; then
+              if command -v pytest >/dev/null 2>&1; then
+                pytest
+              else
+                echo "pytest not available after install; skipping Python tests"
+              fi
+            else
+              echo "No Python tests detected; skipping"
+            fi
           else
             echo "No tests available to run; skipping"
           fi
 
       - name: Build
-        run: echo "AiCodeX placeholder build output" > build/README.md
+        run: |
+          set -euo pipefail
+          BUILD_FILE="build/${NAME}-${VERSION}-${ARCH}.txt"
+          echo "artifact=${NAME}" > "${BUILD_FILE}"
+          echo "version=${VERSION}" >> "${BUILD_FILE}"
+          echo "arch=${ARCH}" >> "${BUILD_FILE}"
 
       - name: Package
         run: |
