@@ -18,6 +18,7 @@ impl Default for Config {
 }
 
 pub struct Engine {
+    #[allow(dead_code)]
     config: Config,
     running: bool,
 }
