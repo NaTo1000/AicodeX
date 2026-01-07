@@ -1,0 +1,53 @@
+name: CI pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NAME: aicodex
+      VERSION: 0.0.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Derive version and architecture
+        run: |
+          DEFAULT_VERSION="${VERSION:-0.0.0}"
+          RESOLVED_VERSION="$(git describe --tags --abbrev=0 2>/dev/null || echo "${DEFAULT_VERSION}")"
+          echo "VERSION=${RESOLVED_VERSION}" >> "$GITHUB_ENV"
+          echo "ARCH=$(uname -m)" >> "$GITHUB_ENV"
+
+      - name: Clean
+        run: |
+          rm -rf artifacts build dist .output
+          mkdir -p build
+
+      - name: Install
+        run: echo "No dependencies to install"
+
+      - name: Lint/Format
+        run: echo "No lint or format configuration present"
+
+      - name: Tests
+        run: echo "No tests available to run"
+
+      - name: Build
+        run: echo "AicodeX placeholder build output" > build/README.md
+
+      - name: Package
+        run: |
+          mkdir -p artifacts
+          tar -czf "artifacts/${NAME}-${VERSION}-${ARCH}.tar.gz" -C build .
+
+      - name: Verify
+        run: tar -tzf "artifacts/${NAME}-${VERSION}-${ARCH}.tar.gz" >/dev/null
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ env.NAME }}-${{ env.VERSION }}-${{ env.ARCH }}"
+          path: artifacts/${{ env.NAME }}-${{ env.VERSION }}-${{ env.ARCH }}.tar.gz
