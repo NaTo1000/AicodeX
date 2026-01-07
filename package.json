@@ -1,0 +1,32 @@
+{
+  "name": "aicodex",
+  "version": "0.1.0",
+  "description": "A companion overlay code engine with hotkey features",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "lint": "eslint 'src/**/*.ts'",
+    "format": "prettier --write 'src/**/*.{ts,tsx,json}'",
+    "test": "jest",
+    "clean": "rimraf dist coverage"
+  },
+  "keywords": ["code", "overlay", "hotkey", "engine"],
+  "author": "NaTo1000",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.40.0",
+    "jest": "^29.5.0",
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "electron": "^27.0.0"
+  }
+}

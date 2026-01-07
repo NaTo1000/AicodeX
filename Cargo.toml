@@ -1,0 +1,26 @@
+[package]
+name = "aicodex"
+version = "0.1.0"
+edition = "2021"
+authors = ["NaTo1000"]
+description = "A companion overlay code engine with hotkey features"
+license = "MIT"
+repository = "https://github.com/NaTo1000/AicodeX"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bin]]
+name = "aicodex"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
