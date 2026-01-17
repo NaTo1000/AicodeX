@@ -1,0 +1,19 @@
+# AicodeX Requirements
+# Python dependencies for the AicodeX companion overlay code engine
+
+# GUI Framework
+tkinter-tooltip>=1.0.0
+
+# Hotkey support
+keyboard>=0.13.5
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Code quality
+pylint>=3.0.0
+black>=23.0.0
+
+# Packaging
+pyinstaller>=6.0.0
