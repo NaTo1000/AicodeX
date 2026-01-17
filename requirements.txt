@@ -1,9 +1,6 @@
 # AicodeX Requirements
 # Python dependencies for the AicodeX companion overlay code engine
 
-# GUI Framework
-tkinter-tooltip>=1.0.0
-
 # Hotkey support
 keyboard>=0.13.5
 
