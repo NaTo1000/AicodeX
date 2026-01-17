@@ -1,0 +1,42 @@
+{
+  "window": {
+    "width": 400,
+    "height": 600,
+    "x_position": 100,
+    "y_position": 100,
+    "opacity": 0.95
+  },
+  "hotkeys": {
+    "toggle_overlay": "ctrl+shift+o",
+    "insert_snippet": "ctrl+shift+s",
+    "format_code": "ctrl+shift+f"
+  },
+  "snippets": [
+    {
+      "name": "Python Function",
+      "code": "def function_name(param):\n    \"\"\"Docstring\"\"\"\n    pass"
+    },
+    {
+      "name": "JavaScript Function",
+      "code": "function functionName(param) {\n    // Comment\n    return value;\n}"
+    },
+    {
+      "name": "Python Class",
+      "code": "class ClassName:\n    \"\"\"Class docstring\"\"\"\n    \n    def __init__(self):\n        pass"
+    },
+    {
+      "name": "Try-Except Block",
+      "code": "try:\n    # Code that might raise an exception\n    pass\nexcept Exception as e:\n    # Handle exception\n    print(f\"Error: {e}\")"
+    }
+  ],
+  "theme": {
+    "background": "#2b2b2b",
+    "foreground": "#ffffff",
+    "accent": "#007acc"
+  },
+  "features": {
+    "handbrake_integration": true,
+    "auto_format": true,
+    "snippet_suggestions": true
+  }
+}

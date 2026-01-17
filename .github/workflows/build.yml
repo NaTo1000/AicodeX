@@ -1,0 +1,45 @@
+name: Build AicodeX
+
+on:
+  push:
+    branches: [ main, develop, copilot/** ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup build tools and environment
+      uses: ./.github/actions/copilot/setup-build-tools-enviroments
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      run: |
+        python -m pytest tests/ -v
+      continue-on-error: true
+    
+    - name: Build application
+      run: |
+        python src/main.py --version
+    
+    - name: Package application
+      run: |
+        pip install pyinstaller
+        pyinstaller --onefile --windowed --name AicodeX src/main.py
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: AicodeX-Windows
+        path: dist/AicodeX.exe

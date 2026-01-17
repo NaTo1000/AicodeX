@@ -1,0 +1,34 @@
+name: 'Setup Build Tools and Environment'
+description: 'Sets up build tools and environment for Windows development'
+author: 'AicodeX Team'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Setup Python build tools
+      shell: pwsh
+      run: |
+        Write-Host "Installing Python build tools..."
+        python -m pip install --upgrade pip setuptools wheel
+        
+    - name: Install Windows SDK components (if needed)
+      shell: pwsh
+      run: |
+        Write-Host "Checking Windows SDK..."
+        # Windows SDK is typically pre-installed on GitHub runners
+        # Add any additional Windows-specific tools here if needed
+        
+    - name: Verify environment
+      shell: pwsh
+      run: |
+        Write-Host "Python version:"
+        python --version
+        Write-Host "Pip version:"
+        pip --version
+        Write-Host "Environment setup complete!"
