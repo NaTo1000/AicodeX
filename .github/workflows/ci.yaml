@@ -1,0 +1,121 @@
+name: CI pipeline
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NAME: aicodex
+      VERSION: 0.0.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Derive version and architecture
+        run: |
+          RESOLVED_VERSION="$(git describe --tags --always 2>/dev/null || echo "${VERSION}")"
+          echo "VERSION=${RESOLVED_VERSION}" >> "$GITHUB_ENV"
+          echo "ARCH=$(uname -m)" >> "$GITHUB_ENV"
+
+      - name: Clean
+        run: |
+          rm -rf artifacts build dist .output
+          mkdir -p build
+
+      - name: Install
+        run: |
+          set -euo pipefail
+          if [ -f package.json ]; then
+            echo "Detected package.json; running npm ci"
+            npm ci
+          elif [ -f pyproject.toml ] || [ -f setup.py ]; then
+            python -m pip install --upgrade pip
+            if pip install -e ".[dev]"; then
+              echo "Installed Python project with dev extras"
+            else
+              DEV_INSTALL_EXIT=$?
+              echo "Editable install with dev extras failed (exit code ${DEV_INSTALL_EXIT}); retrying without extras"
+              pip install -e .
+            fi
+          elif [ -f requirements.txt ]; then
+            echo "Detected requirements.txt; installing with pip"
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+          elif [ -f Pipfile ]; then
+            echo "Detected Pipfile; installing via pipenv"
+            python -m pip install --upgrade pip
+            pip install pipenv
+            pipenv install --dev
+          else
+            echo "No dependency manifest found; skipping install"
+          fi
+
+      - name: Lint/Format
+        run: |
+          set -euo pipefail
+          if [ -f package.json ]; then
+            npm run lint --if-present
+            npm run format --if-present
+          else
+            echo "No lint or format configuration present; skipping"
+          fi
+
+      - name: Tests
+        run: |
+          set -euo pipefail
+          if [ -f package.json ]; then
+            npm test --if-present
+          elif [ -f pyproject.toml ] || [ -f requirements.txt ] || [ -f Pipfile ]; then
+            if [ -d tests ] || compgen -G "*_test.py" > /dev/null 2>&1 || compgen -G "test_*.py" > /dev/null 2>&1; then
+              if command -v pytest >/dev/null 2>&1; then
+                pytest
+              else
+                echo "pytest not available after install; skipping Python tests"
+              fi
+            else
+              echo "No Python tests detected; skipping"
+            fi
+          else
+            echo "No tests available to run; skipping"
+          fi
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          BUILD_FILE="build/${NAME}-${VERSION}-${ARCH}.txt"
+          echo "artifact=${NAME}" > "${BUILD_FILE}"
+          echo "version=${VERSION}" >> "${BUILD_FILE}"
+          echo "arch=${ARCH}" >> "${BUILD_FILE}"
+          echo "note=placeholder build output for CI pipeline validation" >> "${BUILD_FILE}"
+
+      - name: Package
+        run: |
+          mkdir -p artifacts
+          tar -czf "artifacts/${NAME}-${VERSION}-${ARCH}.tar.gz" -C build .
+
+      - name: Verify
+        run: tar -tzf "artifacts/${NAME}-${VERSION}-${ARCH}.tar.gz" >/dev/null
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ env.NAME }}-${{ env.VERSION }}-${{ env.ARCH }}"
+          path: artifacts/${{ env.NAME }}-${{ env.VERSION }}-${{ env.ARCH }}.tar.gz
