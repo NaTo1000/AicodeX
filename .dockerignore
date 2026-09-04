@@ -1,0 +1,28 @@
+# Build context exclusions — keep images small and never leak secrets.
+.git
+.github
+**/__pycache__
+**/*.py[cod]
+*.egg-info
+.pytest_cache
+.venv
+venv
+env
+
+# Secrets and local credentials — never sent to the Docker daemon.
+.env
+*.pem
+*.key
+*.p12
+*.mobileprovision
+**/.aicodex/
+**/edition2_vault.json
+**/.hf_models/
+
+# Apple signing assets are prepared outside the image.
+apple/**/Certificates
+apple/**/profiles
+
+# Tests and docs are not needed at runtime.
+tests
+*.md
