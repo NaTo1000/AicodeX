@@ -122,5 +122,30 @@
     "max_workers": 8,
     "research_source_model": "Mistral",
     "bots_from": "enabled_roles"
+  },
+  "metrics": {
+    "description": "Usage control deck: token usage per model output, cost per token, better-model swaps, and platform-wide totals across users.",
+    "cost_per_token_usd": {
+      "Claude": 0.000008,
+      "Gemini": 0.0000035,
+      "Cursor": 0.000004,
+      "Kimi 3": 0.000002,
+      "Mistral": 0.0000025,
+      "Grok": 0.000005,
+      "ChatGPT": 0.000006
+    }
+  },
+  "hf_models": {
+    "description": "Hugging Face model-selection catalog. Click-to-install variety; gated models activate with a user API key via $VAULT:HF_API_KEY.",
+    "api_key_ref": "$VAULT:HF_API_KEY",
+    "install_dir": ".hf_models",
+    "entries": {
+      "mistralai/Mistral-7B-Instruct": { "task": "text-generation", "gated": false, "params_b": 7.3 },
+      "meta-llama/Llama-3-8B-Instruct": { "task": "text-generation", "gated": true, "params_b": 8.0 },
+      "codellama/CodeLlama-7b-Python": { "task": "code-generation", "gated": false, "params_b": 7.0 },
+      "bigcode/starcoder2-7b": { "task": "code-generation", "gated": false, "params_b": 7.0 },
+      "google/gemma-2-9b-it": { "task": "text-generation", "gated": true, "params_b": 9.2 },
+      "Qwen/Qwen2.5-Coder-7B-Instruct": { "task": "code-generation", "gated": false, "params_b": 7.6 }
+    }
   }
 }

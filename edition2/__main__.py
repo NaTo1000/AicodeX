@@ -63,6 +63,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--backends", action="store_true",
                         help="list each model's compute-backend link "
                              "(standard / VPS / cloud / GPU) and exit")
+    parser.add_argument("--metrics", action="store_true",
+                        help="print the usage control-deck metrics summary")
+    parser.add_argument("--metrics-html", metavar="PATH",
+                        help="write the metrics web page to PATH")
+    parser.add_argument("--hf-catalog", action="store_true",
+                        help="list the Hugging Face model-selection catalog")
     return parser
 
 
@@ -95,6 +101,35 @@ def main(argv: Optional[List[str]] = None) -> int:
     if args.backends:
         from .backends import BackendRegistry
         print(BackendRegistry(registry, vault=vault).render())
+        return 0
+
+    if args.hf_catalog:
+        from .hfcatalog import HuggingFaceCatalog
+        hf_cfg = config.get("hf_models", {})
+        entries = hf_cfg.get("entries", {}) if isinstance(hf_cfg, dict) else {}
+        catalog = HuggingFaceCatalog(
+            entries, vault=vault,
+            install_dir=hf_cfg.get("install_dir", ".hf_models"))
+        print("AicodeX Edition 2 — Hugging Face Model Catalog")
+        print("=" * 60)
+        for spec in catalog.list():
+            gated = "gated" if spec.gated else "open "
+            params = f"{spec.params_b:g}B" if spec.params_b is not None else "?"
+            print(f"  [{gated}] {spec.model_id:<40} {spec.task:<18} {params}")
+        return 0
+
+    if args.metrics or args.metrics_html:
+        from .metrics import MetricsPanel
+        metrics_cfg = config.get("metrics", {})
+        cost_map = (metrics_cfg.get("cost_per_token_usd", {})
+                    if isinstance(metrics_cfg, dict) else {})
+        panel = MetricsPanel(cost_per_token=cost_map)
+        if args.metrics_html:
+            Path(args.metrics_html).write_text(panel.render_page(),
+                                               encoding="utf-8")
+            print(f"metrics page written to {args.metrics_html}")
+        else:
+            print(panel.render_text())
         return 0
 
     orchestration = config.get("orchestration", {})
