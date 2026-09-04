@@ -12,6 +12,49 @@
 - 🔧 **HandBrake Integration** - Check and download the latest HandBrake version
 - 🖥️ **Windows Optimized** - Built specifically for Windows development workflows
 
+## Edition 2 — Multi-Model Orchestration & Secrets Vault
+
+Edition 2 layers an optional, config-driven multi-model orchestration system on top of the AicodeX core. A roster of specialized model roles is sequenced by the **CHAiMERA.ConductorX** orchestration system, which creates the *symphony of structure and code accuracy* for the user-desired output.
+
+### Model Roles
+
+Each role binds a model to a mission and can be toggled on or off independently via its `enabled` flag in `config/edition2_settings.json`:
+
+| Role | Model | Mission |
+|------|-------|---------|
+| `skeleton_architect` | **Claude** | Skeleton structure & overall code-base architecture |
+| `formation_planner` | **Gemini** | Formation system setup & TODO planning |
+| `base_coder` | **Cursor** | Write the base code structure |
+| `error_patcher` | **Kimi 3** | Code-base error checks & patching refinements |
+| `research_dev` | **Mistral** | R&D of errors/queries from internal build metrics; supply data feeds & algorithms for requirement rectifications & enhanced performance |
+| `security_netops` | **Grok** | Security system, network management & port-allocation structure |
+| `spec_logger` | **ChatGPT** | Full-spec logging & advanced workflow mapping; job-building alignment, requirements/regulations & error prevention |
+
+### Optional Secrets Vault
+
+Edition 2 includes an **optional, local-only secrets vault** (`edition2/vault.py`) for the per-model job credentials. Config references secrets indirectly with `$VAULT:key` entries so no secret value ever lives in version-controlled configuration.
+
+- Stored as a single JSON file with owner-only (`0600`) permissions, auto-repaired on write.
+- **Local-only:** the vault warns if placed in a synced/shared location and must never be committed or uploaded. Use your CI secret manager for shared/production secrets.
+
+```bash
+# Store a credential locally (never in the repo)
+python -c "from edition2.vault import SecretsVault; SecretsVault('~/.aicodex/edition2_vault.json').set('CLAUDE_API_KEY', '...')"
+```
+
+### CHAiMERA ConductorX Orchestration
+
+`CHAiMERA.ConductorX` validates each role's declared inputs against the outputs of earlier roles (plus external `seeds` such as `requirements_spec` and `internal_build_metrics`), then sequences the enabled roles into a dependency-aware run and emits a plain-text **Symphony Report** of structure and code-accuracy status.
+
+```bash
+python -m edition2 --version                 # print the Edition 2 version
+python -m edition2 --list-roles              # list configured roles & their state
+python -m edition2                           # run the orchestration, print the report
+python -m edition2 --include-disabled        # also show disabled roles as skipped
+```
+
+Disable any optional role by setting `"enabled": false` for it in `config/edition2_settings.json`; ConductorX then records it as skipped (or omits it) without touching the rest of the configuration.
+
 ## AI Writers Integration
 
 AicodeX is integrated as the **internal overlayer for the AI writers** — it provides the shared overlay layer that AI writing tools use to surface hotkey-driven, in-context coding and writing assistance on top of any application.
@@ -211,15 +254,33 @@ AicodeX/
 │   ├── config.py                  # Configuration management
 │   └── utils/
 │       └── handbrake_checker.py   # HandBrake integration
+├── edition2/                      # Edition 2 — multi-model orchestration
+│   ├── __init__.py                # Package version & metadata
+│   ├── __main__.py                # CLI entry point
+│   ├── orchestrator.py            # Role registry & config validation
+│   ├── vault.py                   # Optional local-only secrets vault
+│   └── chaimera/
+│       ├── __init__.py            # CHAiMERA subsystem exports
+│       └── conductorx.py          # ConductorX orchestrator & report
 ├── config/
-│   └── default_settings.json      # Default configuration
+│   ├── default_settings.json      # Default configuration
+│   └── edition2_settings.json     # Edition 2 roles & orchestration
 ├── tests/                         # Test files
+│   └── test_edition2.py           # Edition 2 test suite (stdlib unittest)
 ├── requirements.txt               # Python dependencies
 ├── .gitignore                     # Git ignore patterns
 └── README.md                      # This file
 ```
 
 ### Running Tests
+
+The Edition 2 suite uses only the standard library, so it runs anywhere:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+It is also pytest-compatible:
 
 ```bash
 pytest tests/ -v
