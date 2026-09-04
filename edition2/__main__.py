@@ -60,6 +60,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help="run the hive cluster of VMware worker bots "
                              "(parallel bandwidth analysis, trough balancing, "
                              "and research-driven data patching)")
+    parser.add_argument("--backends", action="store_true",
+                        help="list each model's compute-backend link "
+                             "(standard / VPS / cloud / GPU) and exit")
     return parser
 
 
@@ -87,6 +90,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         for role in registry.all_roles():
             state = "enabled " if role.enabled else "disabled"
             print(f"[{state}] {role.name:<22} {role.model:<10} {role.mission}")
+        return 0
+
+    if args.backends:
+        from .backends import BackendRegistry
+        print(BackendRegistry(registry, vault=vault).render())
         return 0
 
     orchestration = config.get("orchestration", {})

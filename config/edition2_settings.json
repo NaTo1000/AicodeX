@@ -13,7 +13,8 @@
       "inputs": ["requirements_spec"],
       "outputs": ["skeleton_structure", "architecture_map"],
       "metrics": ["structural_completeness", "coupling_score"],
-      "secret_ref": "$VAULT:CLAUDE_API_KEY"
+      "secret_ref": "$VAULT:CLAUDE_API_KEY",
+      "compute": { "kind": "standard" }
     },
     "formation_planner": {
       "model": "Gemini",
@@ -22,7 +23,12 @@
       "inputs": ["skeleton_structure"],
       "outputs": ["formation_system", "todo_plan"],
       "metrics": ["scaffold_coverage", "todo_resolution_rate"],
-      "secret_ref": "$VAULT:GEMINI_API_KEY"
+      "secret_ref": "$VAULT:GEMINI_API_KEY",
+      "compute": {
+        "kind": "cloud",
+        "label": "Gemini cloud instance",
+        "endpoint": "$VAULT:GEMINI_CLOUD_ENDPOINT"
+      }
     },
     "base_coder": {
       "model": "Cursor",
@@ -31,7 +37,12 @@
       "inputs": ["skeleton_structure", "formation_system"],
       "outputs": ["base_code"],
       "metrics": ["lines_implemented", "stub_completion"],
-      "secret_ref": "$VAULT:CURSOR_API_KEY"
+      "secret_ref": "$VAULT:CURSOR_API_KEY",
+      "compute": {
+        "kind": "vps",
+        "label": "Cursor user VPS",
+        "endpoint": "$VAULT:CURSOR_VPS_ENDPOINT"
+      }
     },
     "error_patcher": {
       "model": "Kimi 3",
@@ -40,7 +51,8 @@
       "inputs": ["base_code"],
       "outputs": ["patched_code", "error_report"],
       "metrics": ["errors_detected", "errors_resolved"],
-      "secret_ref": "$VAULT:KIMI_API_KEY"
+      "secret_ref": "$VAULT:KIMI_API_KEY",
+      "compute": { "kind": "standard" }
     },
     "research_dev": {
       "model": "Mistral",
@@ -49,7 +61,13 @@
       "inputs": ["error_report", "internal_build_metrics"],
       "outputs": ["data_feeds", "algorithms", "rectification_plan"],
       "metrics": ["build_metric_delta", "performance_gain"],
-      "secret_ref": "$VAULT:MISTRAL_API_KEY"
+      "secret_ref": "$VAULT:MISTRAL_API_KEY",
+      "compute": {
+        "kind": "gpu",
+        "gpu_vendor": "Nvidia",
+        "label": "Mistral R&D GPU (Nvidia)",
+        "endpoint": "$VAULT:MISTRAL_GPU_ENDPOINT"
+      }
     },
     "security_netops": {
       "model": "Grok",
@@ -58,7 +76,13 @@
       "inputs": ["patched_code"],
       "outputs": ["security_policy", "network_map", "port_allocation"],
       "metrics": ["open_port_count", "policy_violations"],
-      "secret_ref": "$VAULT:GROK_API_KEY"
+      "secret_ref": "$VAULT:GROK_API_KEY",
+      "compute": {
+        "kind": "gpu",
+        "gpu_vendor": "Tesla",
+        "label": "Grok netops GPU (Tesla)",
+        "endpoint": "$VAULT:GROK_GPU_ENDPOINT"
+      }
     },
     "spec_logger": {
       "model": "ChatGPT",
@@ -67,7 +91,8 @@
       "inputs": ["patched_code", "rectification_plan", "security_policy"],
       "outputs": ["spec_logs", "workflow_map", "compliance_report"],
       "metrics": ["log_coverage", "regulation_alignment"],
-      "secret_ref": "$VAULT:CHATGPT_API_KEY"
+      "secret_ref": "$VAULT:CHATGPT_API_KEY",
+      "compute": { "kind": "standard" }
     }
   },
   "orchestration": {

@@ -43,6 +43,10 @@ class RoleSpec:
         An optional ``$VAULT:key`` reference naming the vault entry that holds
         this role's credential. Only the reference is stored in config — never
         the secret value.
+    compute:
+        The role's compute-backend link (standard output, or a user VPS /
+        cloud / GPU). Populated by :class:`RoleRegistry`; defaults to a
+        standard backend.
     """
 
     name: str
@@ -53,6 +57,7 @@ class RoleSpec:
     outputs: List[str] = field(default_factory=list)
     metrics: List[str] = field(default_factory=list)
     secret_ref: Optional[str] = None
+    compute: "object" = field(default=None)
 
 
 class RoleRegistry:
@@ -78,6 +83,9 @@ class RoleRegistry:
             raise ConfigError(f"Role '{name}' must define a non-empty 'model'")
         if not mission or not isinstance(mission, str):
             raise ConfigError(f"Role '{name}' must define a non-empty 'mission'")
+        # Lazy import to avoid a circular dependency (backends imports this
+        # module for RoleRegistry/ConfigError).
+        from .backends import parse_backend
         return RoleSpec(
             name=name,
             model=model,
@@ -87,6 +95,7 @@ class RoleRegistry:
             outputs=list(raw.get("outputs", [])),
             metrics=list(raw.get("metrics", [])),
             secret_ref=raw.get("secret_ref"),
+            compute=parse_backend(raw.get("compute"), role_name=name),
         )
 
     # -- access ------------------------------------------------------------
