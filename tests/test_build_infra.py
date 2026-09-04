@@ -16,8 +16,8 @@ DOCKERFILE = ROOT / "Dockerfile"
 BAKE = ROOT / "docker" / "docker-bake.hcl"
 ENTRYPOINT = ROOT / "docker" / "entrypoint.sh"
 PACKAGE = ROOT / "apple" / "Package.swift"
-APP_SWIFT = ROOT / "apple" / "Sources" / "AicodeXApp" / "AicodeXApp.swift"
-CONTENT_SWIFT = ROOT / "apple" / "Sources" / "AicodeXApp" / "ContentView.swift"
+APP_SWIFT = ROOT / "apple" / "App" / "AicodeXApp.swift"
+CONTENT_SWIFT = ROOT / "apple" / "App" / "ContentView.swift"
 EXPORT_PLIST = ROOT / "apple" / "ExportOptions.plist"
 CREDS_MD = ROOT / "apple" / "APPLE_CREDENTIALS.md"
 
@@ -104,7 +104,7 @@ class AppleBuildTests(unittest.TestCase):
         self.assertIn("name: \"AicodeX\"", text)
         self.assertIn(".iOS(.v16)", text)
         self.assertIn(".macOS(.v13)", text)
-        self.assertIn('name: "AicodeXApp"', text)
+        self.assertIn('name: "AicodeXCore"', text)
 
     def test_swiftui_app_entry(self) -> None:
         text = _read(APP_SWIFT)

@@ -1,9 +1,11 @@
 // swift-tools-version:5.9
 //
-// AicodeX — SwiftUI app package for Xcode.
-// Open this file in Xcode (File ▸ Open ▸ Package.swift) or build with
-// `swift build`. Apple credentials are provided via the environment / CI —
-// see APPLE_CREDENTIALS.md.
+// AicodeX — Swift package.
+//
+// `AicodeXCore` is the platform-independent clustered-workspace logic and
+// builds + tests on any platform (`swift build` / `swift test`), including
+// Linux CI. The SwiftUI app UI lives in `App/` and is imported into Xcode
+// (it requires the Apple SDK / SwiftUI). See APPLE_CREDENTIALS.md.
 
 import PackageDescription
 
@@ -11,19 +13,21 @@ let package = Package(
     name: "AicodeX",
     platforms: [
         .iOS(.v16),
-        .macOS(.v13)
+        .macOS(.v13),
+        .watchOS(.v9)
     ],
     products: [
-        .library(name: "AicodeXApp", targets: ["AicodeXApp"])
+        // Platform-independent cluster logic — builds and tests everywhere.
+        .library(name: "AicodeXCore", targets: ["AicodeXCore"])
     ],
     targets: [
         .target(
-            name: "AicodeXApp",
-            path: "Sources/AicodeXApp"
+            name: "AicodeXCore",
+            path: "Sources/AicodeXCore"
         ),
         .testTarget(
             name: "AicodeXAppTests",
-            dependencies: ["AicodeXApp"],
+            dependencies: ["AicodeXCore"],
             path: "Tests/AicodeXAppTests"
         )
     ]
