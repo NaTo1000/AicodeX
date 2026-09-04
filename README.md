@@ -55,6 +55,22 @@ python -m edition2 --include-disabled        # also show disabled roles as skipp
 
 Disable any optional role by setting `"enabled": false` for it in `config/edition2_settings.json`; ConductorX then records it as skipped (or omits it) without touching the rest of the configuration.
 
+### Hive — Model-Driven VMware Worker Bots
+
+The **hive** (`edition2/hive/`) is a cluster of lightweight **VMware worker bots**, one spawned per enabled model role (per its declared needs). Working **in parallel**, the cluster:
+
+1. **Finds bandwidth gaps & peaks/troughs** — every bot samples its bandwidth concurrently (`ThreadPoolExecutor`) and is classified `peak`, `trough`, or `idle`.
+2. **Balances the load into the troughs** — load is shed from peak-saturated bots into trough-idle bots (total load is conserved and troughs are never overfilled).
+3. **Patches missing data bits** — gaps detected during analysis are filled with updated **innovation-research results** supplied by the Mistral `research_dev` role.
+
+Tune the cluster in the `hive` section of `config/edition2_settings.json` (`worker_capacity`, `peak_threshold`, `trough_threshold`, `max_workers`, `research_source_model`), then run it:
+
+```bash
+python -m edition2 --hive               # analyse → balance → patch, print Cluster Report
+```
+
+The implementation is standard-library only and deterministic when load/bandwidth samples are injected, so it is fully testable offline (see `tests/test_hive.py`).
+
 ## AI Writers Integration
 
 AicodeX is integrated as the **internal overlayer for the AI writers** — it provides the shared overlay layer that AI writing tools use to surface hotkey-driven, in-context coding and writing assistance on top of any application.
@@ -262,11 +278,15 @@ AicodeX/
 │   └── chaimera/
 │       ├── __init__.py            # CHAiMERA subsystem exports
 │       └── conductorx.py          # ConductorX orchestrator & report
+│   └── hive/
+│       ├── __init__.py            # Hive subsystem exports
+│       └── cluster.py             # VMware worker-bot cluster & balancing
 ├── config/
 │   ├── default_settings.json      # Default configuration
 │   └── edition2_settings.json     # Edition 2 roles & orchestration
 ├── tests/                         # Test files
 │   └── test_edition2.py           # Edition 2 test suite (stdlib unittest)
+│   └── test_hive.py               # Hive cluster tests (stdlib unittest)
 ├── requirements.txt               # Python dependencies
 ├── .gitignore                     # Git ignore patterns
 └── README.md                      # This file
