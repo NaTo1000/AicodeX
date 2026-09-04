@@ -119,6 +119,28 @@ python -m edition2 --hf-catalog                 # list the installable HF model 
 
 Cost-per-token per model lives in the `metrics` section, and the installable HF catalog in the `hf_models` section, of `config/edition2_settings.json`.
 
+### Realtime Monitor, COB Reports & Community Forum
+
+A **monitor system** (`edition2/monitor.py`) sits over everything. Each component feeds it through a per-component **valve** that batches realtime metrics and forwards them to the **conductor** for enhancement management and to the **database-analysis coordination** hooks — keeping innovation and future-development signals flowing. The display updates in realtime on a configurable interval (default **0.5 s**).
+
+```bash
+python -m edition2 --monitor                  # run the realtime monitor display
+```
+
+At **close of business**, `edition2/cob.py` builds a daily report on **who is the best at what job**, generates a **daily article**, and allocates **user-wanted improvements** to a discussion channel (forum, **voice message**, or **email**):
+
+```bash
+python -m edition2 --cob-report               # print the close-of-business daily report
+```
+
+The **community forum** (`edition2/forum.py`) is a link off the app but wholly connected to it — a **live web page that non-members can access and read** (read-only publicly; members post via the app). It hosts the daily COB articles, discussions, and allocated improvement requests, refreshing live every 0.5 s.
+
+```bash
+python -m edition2 --forum-html forum.html    # write the public community forum page
+```
+
+Tune the monitor, COB, and forum in the `monitor` section of `config/edition2_settings.json`.
+
 ## AI Writers Integration
 
 AicodeX is integrated as the **internal overlayer for the AI writers** — it provides the shared overlay layer that AI writing tools use to surface hotkey-driven, in-context coding and writing assistance on top of any application.
@@ -326,6 +348,9 @@ AicodeX/
 │   ├── backends.py                # Per-model compute-backend links
 │   ├── metrics.py                 # Usage metrics control deck & HTML page
 │   ├── hfcatalog.py               # Hugging Face model-selection catalog
+│   ├── monitor.py                 # Realtime monitor system with valves
+│   ├── cob.py                     # Close-of-business daily reports
+│   ├── forum.py                   # Public community forum page
 │   └── chaimera/
 │       ├── __init__.py            # CHAiMERA subsystem exports
 │       └── conductorx.py          # ConductorX orchestrator & report
@@ -341,6 +366,9 @@ AicodeX/
 │   └── test_backends.py           # Compute-backend tests (stdlib unittest)
 │   └── test_metrics.py            # Metrics control-deck tests (stdlib unittest)
 │   └── test_hf.py                 # HF catalog tests (stdlib unittest)
+│   └── test_monitor.py            # Monitor system tests (stdlib unittest)
+│   └── test_cob.py                # COB report tests (stdlib unittest)
+│   └── test_forum.py              # Forum page tests (stdlib unittest)
 ├── requirements.txt               # Python dependencies
 ├── .gitignore                     # Git ignore patterns
 └── README.md                      # This file
