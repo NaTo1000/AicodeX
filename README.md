@@ -328,7 +328,8 @@ Use the "Check HandBrake Version" action in the Actions tab to check for the lat
 AicodeX/
 ├── .github/
 │   ├── workflows/
-│   │   └── build.yml              # CI/CD workflow
+│   │   ├── ci.yml                  # Lint, test, docker & swift CI
+│   │   └── release.yml             # buildx push + cosign + Apple credentials
 │   └── actions/
 │       └── copilot/
 │           └── setup-build-tools-enviroments/
@@ -374,9 +375,10 @@ AicodeX/
 │   ├── docker-bake.hcl            # buildx bake targets (linux/windows/android) + push
 │   └── entrypoint.sh              # Cross-platform run-system entrypoint
 ├── apple/
-│   ├── Package.swift              # SwiftUI Xcode package (iOS 16 / macOS 13)
-│   ├── Sources/AicodeXApp/        # SwiftUI app (entry point + ContentView)
-│   ├── Tests/AicodeXAppTests/     # Swift tests
+│   ├── Package.swift              # Swift package (iOS 16 / macOS 13 / watchOS 9)
+│   ├── Sources/AicodeXCore/       # Cross-platform cluster logic (swift test)
+│   ├── App/                       # SwiftUI app UI for Xcode (entry + ContentView + ClusterStore)
+│   ├── Tests/AicodeXAppTests/     # Swift (XCTest) cluster tests
 │   ├── ExportOptions.plist        # xcodebuild export options (no secrets)
 │   └── APPLE_CREDENTIALS.md       # Apple credential-prep guide
 ├── Dockerfile                     # Hardened multi-stage image (non-root)
@@ -492,22 +494,33 @@ REGISTRY=ghcr.io/<org> docker buildx bake -f docker/docker-bake.hcl push
 
 `docker/entrypoint.sh` is the run-system entrypoint: it detects the host OS (Android via Termux/proot, Linux, Windows, macOS) and launches the app accordingly. Use it as the container entrypoint or a bare-metal launcher.
 
-### Apple — SwiftUI Xcode Build
+### Apple — SwiftUI Clustered Workspace (watch · phone · iPad · Mac)
 
-The `apple/` directory contains the full SwiftUI build for Xcode:
+The `apple/` directory contains the SwiftUI build for Xcode — an **HD GUI clustered workspace** where the **watch, phone, iPad, and Mac each run a different function at the same time**, connected through **iCloud** (key-value store):
 
-- **`apple/Package.swift`** — Swift package (iOS 16 / macOS 13, library + test target). Open in Xcode or `swift build`.
-- **`apple/Sources/AicodeXApp/`** — the SwiftUI overlay app (`AicodeXApp.swift` entry point, `ContentView.swift`).
+- **`apple/Sources/AicodeXCore/`** — platform-independent cluster logic: `ClusterDevice` (each device kind has a distinct function) and `ClusterCore` (progress clamping, aggregate progress, iCloud keys). Builds and tests everywhere — `swift test` runs on Linux CI too.
+- **`apple/App/`** — the SwiftUI UI imported into Xcode (requires the Apple SDK): `AicodeXApp` entry point, the HD `ContentView` (per-device live progress + iCloud connectivity status), and `ClusterStore` bridging `AicodeXCore` to `NSUbiquitousKeyValueStore` for realtime cross-device sync.
+- **`apple/Package.swift`** — Swift package (iOS 16 / macOS 13 / watchOS 9, core library + test target).
 - **`apple/ExportOptions.plist`** — export options referencing `$(APPLE_TEAM_ID)` only.
 - **`apple/APPLE_CREDENTIALS.md`** — how to prepare Apple Developer credentials. **No certificates, keys, or profiles are committed**; supply them via environment variables / CI secrets.
 
 ```bash
 cd apple
-swift build                 # or open Package.swift in Xcode
+swift test                  # core logic (cross-platform)
+swift build                 # core library
+# Open Package.swift in Xcode, add the App/ sources to an App target, and
+# enable the iCloud ▸ Key-Value Storage capability for cluster sync.
 xcodebuild -scheme AicodeXApp -archivePath build/AicodeX.xcarchive archive
 xcodebuild -exportArchive -archivePath build/AicodeX.xcarchive \
   -exportOptionsPlist ExportOptions.plist -exportPath build/export
 ```
+
+### CI/CD Workflows
+
+Two GitHub Actions workflows provide linted, approved build states across all fields:
+
+- **`.github/workflows/ci.yml`** — `lint` (Python compile + yamllint + black/pylint), `test` (unittest + pytest), `docker` (buildx bake validation), `swift` (swiftlint + build + test), and an aggregate `status` job that always reports each job's state. Least-privilege permissions.
+- **`.github/workflows/release.yml`** — on tags/dispatch: buildx **bake + push** all platform images (registry from env), **cosign** keyless image signing, and Apple credential import from CI secrets.
 
 ## Contributing
 
