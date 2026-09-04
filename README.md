@@ -71,6 +71,31 @@ python -m edition2 --hive               # analyse → balance → patch, print C
 
 The implementation is standard-library only and deterministic when load/bandwidth samples are injected, so it is fully testable offline (see `tests/test_hive.py`).
 
+### Compute Backends — Per-Model Links
+
+Every model has its own **compute link** (`edition2/backends.py`) describing where its work runs. Each role's `compute` block in `config/edition2_settings.json` selects exactly one backend kind:
+
+- **`standard`** — the provider's standard model output (no endpoint).
+- **`vps`** — a user-supplied VPS.
+- **`cloud`** — a user-supplied cloud instance.
+- **`gpu`** — a user GPU, with `gpu_vendor` of **`Nvidia`** or **`Tesla`**.
+
+Non-standard backends require an `endpoint`, stored as a `$VAULT:key` reference (resolved through the local secrets vault) so no host or credential is ever committed. The default assignment:
+
+| Role | Model | Compute link |
+|------|-------|--------------|
+| `skeleton_architect` | Claude | standard |
+| `formation_planner` | Gemini | cloud |
+| `base_coder` | Cursor | VPS |
+| `error_patcher` | Kimi 3 | standard |
+| `research_dev` | Mistral | GPU (Nvidia) |
+| `security_netops` | Grok | GPU (Tesla) |
+| `spec_logger` | ChatGPT | standard |
+
+```bash
+python -m edition2 --backends           # list each model's compute link
+```
+
 ## AI Writers Integration
 
 AicodeX is integrated as the **internal overlayer for the AI writers** — it provides the shared overlay layer that AI writing tools use to surface hotkey-driven, in-context coding and writing assistance on top of any application.
@@ -275,6 +300,7 @@ AicodeX/
 │   ├── __main__.py                # CLI entry point
 │   ├── orchestrator.py            # Role registry & config validation
 │   ├── vault.py                   # Optional local-only secrets vault
+│   ├── backends.py                # Per-model compute-backend links
 │   └── chaimera/
 │       ├── __init__.py            # CHAiMERA subsystem exports
 │       └── conductorx.py          # ConductorX orchestrator & report
@@ -287,6 +313,7 @@ AicodeX/
 ├── tests/                         # Test files
 │   └── test_edition2.py           # Edition 2 test suite (stdlib unittest)
 │   └── test_hive.py               # Hive cluster tests (stdlib unittest)
+│   └── test_backends.py           # Compute-backend tests (stdlib unittest)
 ├── requirements.txt               # Python dependencies
 ├── .gitignore                     # Git ignore patterns
 └── README.md                      # This file
