@@ -369,6 +369,18 @@ AicodeX/
 │   └── test_monitor.py            # Monitor system tests (stdlib unittest)
 │   └── test_cob.py                # COB report tests (stdlib unittest)
 │   └── test_forum.py              # Forum page tests (stdlib unittest)
+│   └── test_build_infra.py        # Build/packaging infra checks
+├── docker/
+│   ├── docker-bake.hcl            # buildx bake targets (linux/windows/android) + push
+│   └── entrypoint.sh              # Cross-platform run-system entrypoint
+├── apple/
+│   ├── Package.swift              # SwiftUI Xcode package (iOS 16 / macOS 13)
+│   ├── Sources/AicodeXApp/        # SwiftUI app (entry point + ContentView)
+│   ├── Tests/AicodeXAppTests/     # Swift tests
+│   ├── ExportOptions.plist        # xcodebuild export options (no secrets)
+│   └── APPLE_CREDENTIALS.md       # Apple credential-prep guide
+├── Dockerfile                     # Hardened multi-stage image (non-root)
+├── .dockerignore                  # Build-context & secret exclusions
 ├── requirements.txt               # Python dependencies
 ├── .gitignore                     # Git ignore patterns
 └── README.md                      # This file
@@ -459,6 +471,43 @@ pylint src/
 - **Artifacts:** CLI binaries and shared libraries (`target/<triple>/release`), installer bundles per OS (`dist/`), web bundles (`build/`), Docker images.
 - **Metadata:** Include version, commit, build date, and checksums with every artifact.
 - **Distribution:** Upload release assets, publish containers to registries, and keep rollback-ready previous versions. Sign all distributed artifacts.
+
+## Container & Platform Builds
+
+### Hardened Docker Buildx Images
+
+The `Dockerfile` is a **hardened, multi-stage** build: a `python:3.11-slim` base (pinnable via `--build-arg`), dependencies built in an isolated builder stage, a **non-root** runtime user, and **no secrets** copied into the image. `.dockerignore` keeps credentials, vaults, and local secrets out of the build context.
+
+`docker/docker-bake.hcl` defines **buildx bake** targets for the run system's platforms and a `push` group. The registry comes from the `REGISTRY` environment variable — never hardcoded.
+
+```bash
+# Build all platform images (linux/amd64+arm64, windows/amd64, android/arm64)
+REGISTRY=ghcr.io/<org> docker buildx bake -f docker/docker-bake.hcl
+
+# Build and push every image (after `docker login`)
+REGISTRY=ghcr.io/<org> docker buildx bake -f docker/docker-bake.hcl push
+```
+
+### Cross-Platform Run System (Android · Linux · Windows)
+
+`docker/entrypoint.sh` is the run-system entrypoint: it detects the host OS (Android via Termux/proot, Linux, Windows, macOS) and launches the app accordingly. Use it as the container entrypoint or a bare-metal launcher.
+
+### Apple — SwiftUI Xcode Build
+
+The `apple/` directory contains the full SwiftUI build for Xcode:
+
+- **`apple/Package.swift`** — Swift package (iOS 16 / macOS 13, library + test target). Open in Xcode or `swift build`.
+- **`apple/Sources/AicodeXApp/`** — the SwiftUI overlay app (`AicodeXApp.swift` entry point, `ContentView.swift`).
+- **`apple/ExportOptions.plist`** — export options referencing `$(APPLE_TEAM_ID)` only.
+- **`apple/APPLE_CREDENTIALS.md`** — how to prepare Apple Developer credentials. **No certificates, keys, or profiles are committed**; supply them via environment variables / CI secrets.
+
+```bash
+cd apple
+swift build                 # or open Package.swift in Xcode
+xcodebuild -scheme AicodeXApp -archivePath build/AicodeX.xcarchive archive
+xcodebuild -exportArchive -archivePath build/AicodeX.xcarchive \
+  -exportOptionsPlist ExportOptions.plist -exportPath build/export
+```
 
 ## Contributing
 
