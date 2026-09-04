@@ -20,6 +20,7 @@ from typing import List, Optional
 
 from . import __version__
 from .chaimera import ConductorX
+from .hive import Hive
 from .orchestrator import ConfigError, RoleRegistry
 from .vault import SecretsVault
 
@@ -55,6 +56,10 @@ def build_parser() -> argparse.ArgumentParser:
                              f"(default: {DEFAULT_VAULT})")
     parser.add_argument("--include-disabled", action="store_true",
                         help="show disabled roles as skipped movements")
+    parser.add_argument("--hive", action="store_true",
+                        help="run the hive cluster of VMware worker bots "
+                             "(parallel bandwidth analysis, trough balancing, "
+                             "and research-driven data patching)")
     return parser
 
 
@@ -86,6 +91,20 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     orchestration = config.get("orchestration", {})
     seeds = set(orchestration.get("seeds", [])) if isinstance(orchestration, dict) else set()
+
+    if args.hive:
+        hive_cfg = config.get("hive", {}) if isinstance(config.get("hive"), dict) else {}
+        hive = Hive.from_roles(
+            registry.enabled_roles(),
+            capacity=float(hive_cfg.get("worker_capacity", 100.0)),
+            peak_threshold=float(hive_cfg.get("peak_threshold", 0.85)),
+            trough_threshold=float(hive_cfg.get("trough_threshold", 0.30)),
+            research_source_model=str(hive_cfg.get("research_source_model", "Mistral")),
+        )
+        report = hive.run(max_workers=int(hive_cfg.get("max_workers", 8)))
+        print(report.render())
+        return 0
+
     report = ConductorX(registry).conduct(
         only_enabled=not args.include_disabled, seeds=seeds)
     print(report.render())

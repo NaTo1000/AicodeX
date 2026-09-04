@@ -88,5 +88,14 @@
     ],
     "tempo": "sequential",
     "reporting": "symphony-report"
+  },
+  "hive": {
+    "description": "Hive cluster of model-driven VMware worker bots. In parallel the bots find bandwidth gaps and peaks/troughs, balance load into the troughs, and patch missing data bits with updated innovation-research results.",
+    "worker_capacity": 100.0,
+    "peak_threshold": 0.85,
+    "trough_threshold": 0.30,
+    "max_workers": 8,
+    "research_source_model": "Mistral",
+    "bots_from": "enabled_roles"
   }
 }
