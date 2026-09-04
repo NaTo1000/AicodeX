@@ -96,6 +96,29 @@ Non-standard backends require an `endpoint`, stored as a `$VAULT:key` reference 
 python -m edition2 --backends           # list each model's compute link
 ```
 
+### Metrics Control Deck & Model Catalog
+
+Within the backend links is a **metrics panel** (`edition2/metrics.py`) the user can click into — a parameters/usage **control deck** that monitors:
+
+- **Token usage per model output** (tokens and cost per output) and **cost per token** per model.
+- **Better-model swap suggestions** — flags when a cheaper model delivers equal-or-more value (tokens/output) at a lower cost per token, so you can swap for better performance.
+- **Platform-wide totals** — token performance and usage per output aggregated **across all users** on the platform.
+
+`render_page()` renders a self-contained HTML **metrics web page** so other users can see the current value trend per model they picked, plus an overall report on the value each model provided from actual build-performance analysis and research results.
+
+```bash
+python -m edition2 --metrics                    # print the usage control-deck summary
+python -m edition2 --metrics-html metrics.html  # write the metrics web page
+```
+
+The **Hugging Face model-selection catalog** (`edition2/hfcatalog.py`) offers full **click-and-install** model variety with user **API-key access activation**. The API key is supplied via a `$VAULT:key` reference (resolved through the local vault, never persisted); gated models require it.
+
+```bash
+python -m edition2 --hf-catalog                 # list the installable HF model variety
+```
+
+Cost-per-token per model lives in the `metrics` section, and the installable HF catalog in the `hf_models` section, of `config/edition2_settings.json`.
+
 ## AI Writers Integration
 
 AicodeX is integrated as the **internal overlayer for the AI writers** — it provides the shared overlay layer that AI writing tools use to surface hotkey-driven, in-context coding and writing assistance on top of any application.
@@ -301,6 +324,8 @@ AicodeX/
 │   ├── orchestrator.py            # Role registry & config validation
 │   ├── vault.py                   # Optional local-only secrets vault
 │   ├── backends.py                # Per-model compute-backend links
+│   ├── metrics.py                 # Usage metrics control deck & HTML page
+│   ├── hfcatalog.py               # Hugging Face model-selection catalog
 │   └── chaimera/
 │       ├── __init__.py            # CHAiMERA subsystem exports
 │       └── conductorx.py          # ConductorX orchestrator & report
@@ -314,6 +339,8 @@ AicodeX/
 │   └── test_edition2.py           # Edition 2 test suite (stdlib unittest)
 │   └── test_hive.py               # Hive cluster tests (stdlib unittest)
 │   └── test_backends.py           # Compute-backend tests (stdlib unittest)
+│   └── test_metrics.py            # Metrics control-deck tests (stdlib unittest)
+│   └── test_hf.py                 # HF catalog tests (stdlib unittest)
 ├── requirements.txt               # Python dependencies
 ├── .gitignore                     # Git ignore patterns
 └── README.md                      # This file
