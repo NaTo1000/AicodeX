@@ -69,6 +69,13 @@ def build_parser() -> argparse.ArgumentParser:
                         help="write the metrics web page to PATH")
     parser.add_argument("--hf-catalog", action="store_true",
                         help="list the Hugging Face model-selection catalog")
+    parser.add_argument("--monitor", action="store_true",
+                        help="run the realtime monitor system and print the "
+                             "live metrics display")
+    parser.add_argument("--cob-report", action="store_true",
+                        help="print the close-of-business daily report")
+    parser.add_argument("--forum-html", metavar="PATH",
+                        help="write the public community forum page to PATH")
     return parser
 
 
@@ -130,6 +137,34 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(f"metrics page written to {args.metrics_html}")
         else:
             print(panel.render_text())
+        return 0
+
+    if args.monitor:
+        from .monitor import MonitorSystem
+        mon_cfg = config.get("monitor", {}) if isinstance(config.get("monitor"), dict) else {}
+        monitor = MonitorSystem(
+            refresh_interval=float(mon_cfg.get("refresh_interval_seconds", 0.5)))
+        for component in mon_cfg.get("valves", []):
+            monitor.valve(str(component))
+        print(monitor.render())
+        return 0
+
+    if args.cob_report:
+        from .cob import CobReporter
+        mon_cfg = config.get("monitor", {}) if isinstance(config.get("monitor"), dict) else {}
+        jobs = mon_cfg.get("cob", {}).get("jobs", []) if isinstance(mon_cfg.get("cob"), dict) else []
+        reporter = CobReporter(jobs=jobs)
+        print(reporter.build().render_text())
+        return 0
+
+    if args.forum_html:
+        from .forum import CommunityForum
+        mon_cfg = config.get("monitor", {}) if isinstance(config.get("monitor"), dict) else {}
+        forum_cfg = mon_cfg.get("forum", {}) if isinstance(mon_cfg.get("forum"), dict) else {}
+        forum = CommunityForum(
+            refresh_seconds=float(forum_cfg.get("refresh_seconds", 0.5)))
+        Path(args.forum_html).write_text(forum.render(), encoding="utf-8")
+        print(f"forum page written to {args.forum_html}")
         return 0
 
     orchestration = config.get("orchestration", {})
