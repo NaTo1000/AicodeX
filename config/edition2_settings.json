@@ -1,0 +1,92 @@
+{
+  "edition": 2,
+  "description": "AicodeX Edition 2 — CHAiMERA ConductorX multi-model orchestration with an optional local secrets vault.",
+  "secrets": {
+    "vault_path": "~/.aicodex/edition2_vault.json",
+    "note": "The vault is LOCAL-ONLY. It is referenced by $VAULT:key entries below; never store real secret values in this file or commit the vault."
+  },
+  "roles": {
+    "skeleton_architect": {
+      "model": "Claude",
+      "mission": "Design the skeleton structure and overall code-base architecture.",
+      "enabled": true,
+      "inputs": ["requirements_spec"],
+      "outputs": ["skeleton_structure", "architecture_map"],
+      "metrics": ["structural_completeness", "coupling_score"],
+      "secret_ref": "$VAULT:CLAUDE_API_KEY"
+    },
+    "formation_planner": {
+      "model": "Gemini",
+      "mission": "Set up the formation system, project scaffolding and TODO planning.",
+      "enabled": true,
+      "inputs": ["skeleton_structure"],
+      "outputs": ["formation_system", "todo_plan"],
+      "metrics": ["scaffold_coverage", "todo_resolution_rate"],
+      "secret_ref": "$VAULT:GEMINI_API_KEY"
+    },
+    "base_coder": {
+      "model": "Cursor",
+      "mission": "Write the base code structure on top of the skeleton.",
+      "enabled": true,
+      "inputs": ["skeleton_structure", "formation_system"],
+      "outputs": ["base_code"],
+      "metrics": ["lines_implemented", "stub_completion"],
+      "secret_ref": "$VAULT:CURSOR_API_KEY"
+    },
+    "error_patcher": {
+      "model": "Kimi 3",
+      "mission": "Run code-base error checks and apply patching refinements.",
+      "enabled": true,
+      "inputs": ["base_code"],
+      "outputs": ["patched_code", "error_report"],
+      "metrics": ["errors_detected", "errors_resolved"],
+      "secret_ref": "$VAULT:KIMI_API_KEY"
+    },
+    "research_dev": {
+      "model": "Mistral",
+      "mission": "Research and develop fixes for errors and queries from internal build metrics; supply data feeds and algorithms for code-base requirement rectifications and enhanced performance.",
+      "enabled": true,
+      "inputs": ["error_report", "internal_build_metrics"],
+      "outputs": ["data_feeds", "algorithms", "rectification_plan"],
+      "metrics": ["build_metric_delta", "performance_gain"],
+      "secret_ref": "$VAULT:MISTRAL_API_KEY"
+    },
+    "security_netops": {
+      "model": "Grok",
+      "mission": "Manage the security system, network topology and port-allocation structure.",
+      "enabled": true,
+      "inputs": ["patched_code"],
+      "outputs": ["security_policy", "network_map", "port_allocation"],
+      "metrics": ["open_port_count", "policy_violations"],
+      "secret_ref": "$VAULT:GROK_API_KEY"
+    },
+    "spec_logger": {
+      "model": "ChatGPT",
+      "mission": "Produce full-spec logging and advanced mapping of workflows; align job building with code-base requirements, regulations and error prevention.",
+      "enabled": true,
+      "inputs": ["patched_code", "rectification_plan", "security_policy"],
+      "outputs": ["spec_logs", "workflow_map", "compliance_report"],
+      "metrics": ["log_coverage", "regulation_alignment"],
+      "secret_ref": "$VAULT:CHATGPT_API_KEY"
+    }
+  },
+  "orchestration": {
+    "system": "CHAiMERA.ConductorX",
+    "description": "Creates the symphony of structure and code accuracy for the user-desired output by sequencing the enabled roles.",
+    "phases": [
+      "structure",
+      "formation",
+      "implementation",
+      "verification",
+      "research",
+      "security",
+      "compliance"
+    ],
+    "seeds": [
+      "requirements_spec",
+      "internal_build_metrics"
+    ],
+    "tempo": "sequential",
+    "reporting": "symphony-report"
+  }
+}
