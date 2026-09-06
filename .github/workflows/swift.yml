@@ -1,0 +1,40 @@
+name: Swift
+
+on:
+  push:
+    branches: [ main, develop, copilot/** ]
+    paths: [ 'apple/**', '.github/workflows/swift.yml' ]
+  pull_request:
+    branches: [ main, develop ]
+    paths: [ 'apple/**', '.github/workflows/swift.yml' ]
+
+permissions:
+  contents: read
+
+jobs:
+  core-linux:
+    name: AicodeXCore (Linux swift build + test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build core
+        run: swift build
+        working-directory: apple
+      - name: Test core
+        run: swift test
+        working-directory: apple
+
+  app-macos:
+    name: SwiftUI App (macOS build)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build core
+        run: swift build
+        working-directory: apple
+      - name: Test core
+        run: swift test
+        working-directory: apple
+      - name: Build app (xcodebuild)
+        run: |
+          echo "App target is built via Xcode project; see apple/APPLE_CREDENTIALS.md"
