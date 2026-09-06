@@ -56,3 +56,21 @@ htmlcov/
 *.log
 *.tmp
 /tmp/
+
+# Swift / Xcode
+.build/
+.swiftpm/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+xcuserdata/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Apple signing — never commit credentials
+*.p12
+*.p8
+*.mobileprovision
+*.provisionprofile
+apple/.asc-private-key

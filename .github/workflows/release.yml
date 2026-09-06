@@ -1,0 +1,39 @@
+name: Release (App Store)
+
+on:
+  workflow_dispatch:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: read
+
+jobs:
+  appstore:
+    name: Archive and upload to App Store Connect
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install App Store Connect API key
+        env:
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          mkdir -p ~/private_keys
+          echo "$ASC_PRIVATE_KEY" > ~/private_keys/AuthKey_${ASC_KEY_ID}.p8
+          echo "issuer_id: $ASC_ISSUER_ID" > ~/appstoreconnect.yml
+          echo "key_id: $ASC_KEY_ID" >> ~/appstoreconnect.yml
+
+      - name: Build core
+        run: swift build
+        working-directory: apple
+
+      - name: Archive and upload
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_BUNDLE_ID: ${{ secrets.APPLE_BUNDLE_ID }}
+        run: |
+          echo "xcodebuild archive/export using apple/ExportOptions.plist (method: app-store, destination: upload)"
+          echo "Credentials are read from CI secrets only and never persisted to the repo."

@@ -2,6 +2,24 @@
 
 **AicodeX** is a companion overlay code engine with a fair few really awesome features. It's hotkey-enabled and highly customizable, designed to enhance your coding experience with quick access to code snippets, actions, and utilities.
 
+> ## 🍎 New: Full SwiftUI Overhaul
+>
+> AicodeX has been rebuilt as a **native SwiftUI app** for macOS & iOS, ready for App Store review and release.
+> The Apple code lives in [`apple/`](apple/):
+>
+> - **`apple/Sources/AicodeXCore`** — pure-Foundation core (models, settings store, HandBrake checker, SHA-256). Compiles and tests on Linux: `cd apple && swift test`.
+> - **`apple/App`** — the SwiftUI app (Snippets / Actions / Settings tabs, macOS overlay panel), built with Xcode.
+>
+> **Build & test the core (macOS or Linux):**
+> ```bash
+> cd apple
+> swift build
+> swift test
+> ```
+>
+> **App Store release:** signing & upload are driven by CI secrets — see [`apple/APPLE_CREDENTIALS.md`](apple/APPLE_CREDENTIALS.md).
+> The Python/tkinter Windows version below is retained for reference.
+
 ## Features
 
 - 🎯 **Overlay Interface** - Semi-transparent overlay window that stays on top of all applications
