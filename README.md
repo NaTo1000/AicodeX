@@ -141,6 +141,22 @@ python -m edition2 --forum-html forum.html    # write the public community forum
 
 Tune the monitor, COB, and forum in the `monitor` section of `config/edition2_settings.json`.
 
+### Crossover/Emulation Database & Style Database
+
+The **crossover database** (`edition2/crossover.py`) stores cross-language **code & emulation** mappings with **precision accuracy** — how a construct in one language is faithfully emulated in another (e.g. Python list comprehension → Swift `filter/map`), with style notes to keep the rewrite idiomatic.
+
+```bash
+python -m edition2 --crossover                # list the crossover/emulation database
+```
+
+The **style database** (`edition2/style.py`) is a small *style section* that learns a user's **code-writing-style fingerprint** (indent width, tabs, quote character, brace style, line length, trailing newline) from samples and **rewrites code to match** with precision. It supports **regular rereads and alignment** — re-learn from the corpus and report/apply drift so generated code stays aligned with the user's style.
+
+```bash
+python -m edition2 --style-fingerprint "$(cat mycode.py)"   # infer a style fingerprint
+```
+
+Seed crossover entries and the default style profile live in the `crossover` and `style` sections of `config/edition2_settings.json`.
+
 ## AI Writers Integration
 
 AicodeX is integrated as the **internal overlayer for the AI writers** — it provides the shared overlay layer that AI writing tools use to surface hotkey-driven, in-context coding and writing assistance on top of any application.
@@ -352,6 +368,8 @@ AicodeX/
 │   ├── monitor.py                 # Realtime monitor system with valves
 │   ├── cob.py                     # Close-of-business daily reports
 │   ├── forum.py                   # Public community forum page
+│   ├── crossover.py               # Crossover code & emulation database
+│   ├── style.py                   # User code-writing-style database
 │   └── chaimera/
 │       ├── __init__.py            # CHAiMERA subsystem exports
 │       └── conductorx.py          # ConductorX orchestrator & report
@@ -370,6 +388,8 @@ AicodeX/
 │   └── test_monitor.py            # Monitor system tests (stdlib unittest)
 │   └── test_cob.py                # COB report tests (stdlib unittest)
 │   └── test_forum.py              # Forum page tests (stdlib unittest)
+│   └── test_crossover.py          # Crossover database tests (stdlib unittest)
+│   └── test_style.py              # Style database tests (stdlib unittest)
 │   └── test_build_infra.py        # Build/packaging infra checks
 ├── docker/
 │   ├── docker-bake.hcl            # buildx bake targets (linux/windows/android) + push
