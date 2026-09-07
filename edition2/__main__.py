@@ -76,6 +76,11 @@ def build_parser() -> argparse.ArgumentParser:
                         help="print the close-of-business daily report")
     parser.add_argument("--forum-html", metavar="PATH",
                         help="write the public community forum page to PATH")
+    parser.add_argument("--crossover", action="store_true",
+                        help="list the crossover code & emulation database")
+    parser.add_argument("--style-fingerprint", metavar="CODE",
+                        help="infer a style fingerprint from an inline code "
+                             "sample and print it")
     return parser
 
 
@@ -165,6 +170,21 @@ def main(argv: Optional[List[str]] = None) -> int:
             refresh_seconds=float(forum_cfg.get("refresh_seconds", 0.5)))
         Path(args.forum_html).write_text(forum.render(), encoding="utf-8")
         print(f"forum page written to {args.forum_html}")
+        return 0
+
+    if args.crossover:
+        from .crossover import CrossoverDatabase
+        x_cfg = config.get("crossover", {}) if isinstance(config.get("crossover"), dict) else {}
+        db = CrossoverDatabase(x_cfg.get("entries", {}))
+        print(db.render())
+        return 0
+
+    if args.style_fingerprint is not None:
+        from .style import StyleDatabase
+        db = StyleDatabase()
+        fp = db.learn([args.style_fingerprint])
+        for key, value in fp.as_dict().items():
+            print(f"{key}: {value}")
         return 0
 
     orchestration = config.get("orchestration", {})

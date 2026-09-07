@@ -162,5 +162,54 @@
       "refresh_seconds": 0.5,
       "title": "AicodeX Community Forum"
     }
+  },
+  "crossover": {
+    "description": "Database of crossover code & emulation mappings: how a construct in one language is emulated in another with precision accuracy and style notes.",
+    "entries": {
+      "py_list_comp_to_swift": {
+        "source_lang": "python",
+        "target_lang": "swift",
+        "construct": "list comprehension",
+        "source": "[x * 2 for x in items if x > 0]",
+        "emulation": "items.filter { $0 > 0 }.map { $0 * 2 }",
+        "notes": "Swift chains filter/map; keep closure shorthand $0."
+      },
+      "py_dict_get_to_swift": {
+        "source_lang": "python",
+        "target_lang": "swift",
+        "construct": "dict.get with default",
+        "source": "settings.get(\"opacity\", 0.95)",
+        "emulation": "settings[\"opacity\", default: 0.95]",
+        "notes": "Swift subscript default; preserves the default-value semantics."
+      },
+      "js_arrow_to_py_lambda": {
+        "source_lang": "javascript",
+        "target_lang": "python",
+        "construct": "arrow function map",
+        "source": "items.map(x => x * 2)",
+        "emulation": "list(map(lambda x: x * 2, items))",
+        "notes": "Wrap map() in list() to materialise like JS arrays."
+      },
+      "py_fstring_to_rust": {
+        "source_lang": "python",
+        "target_lang": "rust",
+        "construct": "f-string interpolation",
+        "source": "f\"value={value}\"",
+        "emulation": "format!(\"value={value}\")",
+        "notes": "Rust 2021 inline format args mirror f-strings."
+      }
+    }
+  },
+  "style": {
+    "description": "User code-writing-style database. Learns a style fingerprint from samples and rewrites code to match with precision; supports regular rereads and alignment.",
+    "reread_interval": 10,
+    "default_fingerprint": {
+      "indent_width": 4,
+      "use_tabs": false,
+      "quote": "\"",
+      "brace_style": "same_line",
+      "max_line_length": 100,
+      "trailing_newline": true
+    }
   }
 }
