@@ -1,3 +1,4 @@
+#if canImport(SwiftUI)
 import SwiftUI
 import AicodeXCore
 
@@ -84,3 +85,4 @@ private struct DeviceRow: View {
 #Preview {
     ContentView()
 }
+#endif

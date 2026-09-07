@@ -1,7 +1,9 @@
+#if canImport(SwiftUI) && canImport(Combine)
 import Foundation
 import Combine
 import AicodeXCore
 
+#if canImport(UIKit) || canImport(AppKit) || os(iOS) || os(macOS) || os(watchOS)
 /// Connectivity + shared state for the AicodeX clustered workspace.
 ///
 /// Devices (watch, phone, iPad, Mac) each run a distinct function
@@ -79,3 +81,5 @@ final class ClusterStore: ObservableObject {
         }
     }
 }
+#endif
+#endif

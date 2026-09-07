@@ -16,9 +16,9 @@ APPLE = ROOT / "apple"
 PACKAGE = APPLE / "Package.swift"
 DEVICE = APPLE / "Sources" / "AicodeXCore" / "ClusterDevice.swift"
 CORE = APPLE / "Sources" / "AicodeXCore" / "ClusterCore.swift"
-STORE = APPLE / "App" / "ClusterStore.swift"
-APP = APPLE / "App" / "AicodeXApp.swift"
-CONTENT = APPLE / "App" / "ContentView.swift"
+STORE = APPLE / "Sources" / "AicodeXApp" / "ClusterStore.swift"
+APP = APPLE / "Sources" / "AicodeXApp" / "AicodeXApp.swift"
+CONTENT = APPLE / "Sources" / "AicodeXApp" / "ContentView.swift"
 SWIFT_TEST = APPLE / "Tests" / "AicodeXAppTests" / "ClusterCoreTests.swift"
 CI = ROOT / ".github" / "workflows" / "ci.yml"
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
@@ -85,6 +85,20 @@ class SwiftCoreTests(unittest.TestCase):
         text = _read(PACKAGE)
         self.assertIn('name: "AicodeXCore"', text)
         self.assertIn("watchOS(.v9)", text)
+
+    def test_app_is_a_buildable_target(self) -> None:
+        text = _read(PACKAGE)
+        self.assertIn('executableTarget', text)
+        self.assertIn('name: "AicodeXApp"', text)
+
+    def test_app_uses_conditional_compilation(self) -> None:
+        # The app target builds cross-platform via canImport guards.
+        for path in (APP, CONTENT, STORE):
+            self.assertIn("#if canImport", _read(path))
+
+    def test_core_types_are_public_for_app_target(self) -> None:
+        self.assertIn("public struct ClusterDevice", _read(DEVICE))
+        self.assertIn("public enum ClusterCore", _read(CORE))
 
 
 class WorkflowTests(unittest.TestCase):

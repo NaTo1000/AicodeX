@@ -93,7 +93,7 @@ jobs:
       - name: SwiftLint (when available)
         run: |
           if command -v swiftlint >/dev/null 2>&1; then
-            swiftlint lint --strict apple/Sources apple/App || true
+            swiftlint lint --strict apple/Sources || true
           else
             echo "swiftlint not installed; skipping"
           fi

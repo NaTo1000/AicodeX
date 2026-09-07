@@ -377,7 +377,7 @@ AicodeX/
 ├── apple/
 │   ├── Package.swift              # Swift package (iOS 16 / macOS 13 / watchOS 9)
 │   ├── Sources/AicodeXCore/       # Cross-platform cluster logic (swift test)
-│   ├── App/                       # SwiftUI app UI for Xcode (entry + ContentView + ClusterStore)
+│   ├── Sources/AicodeXApp/        # Buildable SwiftUI app target (guarded UI)
 │   ├── Tests/AicodeXAppTests/     # Swift (XCTest) cluster tests
 │   ├── ExportOptions.plist        # xcodebuild export options (no secrets)
 │   └── APPLE_CREDENTIALS.md       # Apple credential-prep guide
@@ -499,17 +499,18 @@ REGISTRY=ghcr.io/<org> docker buildx bake -f docker/docker-bake.hcl push
 The `apple/` directory contains the SwiftUI build for Xcode — an **HD GUI clustered workspace** where the **watch, phone, iPad, and Mac each run a different function at the same time**, connected through **iCloud** (key-value store):
 
 - **`apple/Sources/AicodeXCore/`** — platform-independent cluster logic: `ClusterDevice` (each device kind has a distinct function) and `ClusterCore` (progress clamping, aggregate progress, iCloud keys). Builds and tests everywhere — `swift test` runs on Linux CI too.
-- **`apple/App/`** — the SwiftUI UI imported into Xcode (requires the Apple SDK): `AicodeXApp` entry point, the HD `ContentView` (per-device live progress + iCloud connectivity status), and `ClusterStore` bridging `AicodeXCore` to `NSUbiquitousKeyValueStore` for realtime cross-device sync.
-- **`apple/Package.swift`** — Swift package (iOS 16 / macOS 13 / watchOS 9, core library + test target).
+- **`apple/Sources/AicodeXApp/`** — the **buildable SwiftUI app target**: the `@main` entry point, the HD `ContentView` (per-device live progress + iCloud connectivity status), and `ClusterStore` bridging `AicodeXCore` to `NSUbiquitousKeyValueStore` for realtime cross-device sync. The sources use **conditional compilation** (`#if canImport(SwiftUI)`), so `swift build`/`swift run` succeed cross-platform while the full SwiftUI UI is compiled on Apple platforms (and via Xcode for the App Store).
+- **`apple/Package.swift`** — Swift package (iOS 16 / macOS 13 / watchOS 9): the `AicodeXCore` library, the `AicodeXApp` executable, and the test target.
 - **`apple/ExportOptions.plist`** — export options referencing `$(APPLE_TEAM_ID)` only.
 - **`apple/APPLE_CREDENTIALS.md`** — how to prepare Apple Developer credentials. **No certificates, keys, or profiles are committed**; supply them via environment variables / CI secrets.
 
 ```bash
 cd apple
-swift test                  # core logic (cross-platform)
-swift build                 # core library
-# Open Package.swift in Xcode, add the App/ sources to an App target, and
-# enable the iCloud ▸ Key-Value Storage capability for cluster sync.
+swift build                 # builds AicodeXCore + the AicodeXApp executable
+swift test                  # cluster logic tests (cross-platform)
+swift run AicodeXApp        # run the app (CLI fallback off Apple platforms)
+# On Apple platforms the full SwiftUI UI builds; enable the
+# iCloud ▸ Key-Value Storage capability for cluster sync.
 xcodebuild -scheme AicodeXApp -archivePath build/AicodeX.xcarchive archive
 xcodebuild -exportArchive -archivePath build/AicodeX.xcarchive \
   -exportOptionsPlist ExportOptions.plist -exportPath build/export
