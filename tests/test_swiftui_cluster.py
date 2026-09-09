@@ -20,7 +20,7 @@ STORE = APPLE / "Sources" / "AicodeXApp" / "ClusterStore.swift"
 APP = APPLE / "Sources" / "AicodeXApp" / "AicodeXApp.swift"
 CONTENT = APPLE / "Sources" / "AicodeXApp" / "ContentView.swift"
 SWIFT_TEST = APPLE / "Tests" / "AicodeXAppTests" / "ClusterCoreTests.swift"
-CI = ROOT / ".github" / "workflows" / "ci.yml"
+CI = ROOT / ".github" / "workflows" / "ci.yaml"
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 
 SECRET_PATTERNS = [

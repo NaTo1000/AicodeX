@@ -3,6 +3,10 @@ name: CI
 on:
   push:
     branches: [main, develop, "copilot/**"]
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+      - "*.md"
   pull_request:
     branches: [main, develop]
 

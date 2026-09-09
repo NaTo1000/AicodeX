@@ -344,7 +344,7 @@ Use the "Check HandBrake Version" action in the Actions tab to check for the lat
 AicodeX/
 ├── .github/
 │   ├── workflows/
-│   │   ├── ci.yml                  # Lint, test, docker & swift CI
+│   │   ├── ci.yaml                 # Lint, test, docker & swift CI
 │   │   └── release.yml             # buildx push + cosign + Apple credentials
 │   └── actions/
 │       └── copilot/
@@ -540,7 +540,7 @@ xcodebuild -exportArchive -archivePath build/AicodeX.xcarchive \
 
 Two GitHub Actions workflows provide linted, approved build states across all fields:
 
-- **`.github/workflows/ci.yml`** — `lint` (Python compile + yamllint + black/pylint), `test` (unittest + pytest), `docker` (buildx bake validation), `swift` (swiftlint + build + test), and an aggregate `status` job that always reports each job's state. Least-privilege permissions.
+- **`.github/workflows/ci.yaml`** — `lint` (Python compile + yamllint + black/pylint), `test` (unittest + pytest), `docker` (buildx bake validation), `swift` (swiftlint + build + test), and an aggregate `status` job that always reports each job's state. Least-privilege permissions.
 - **`.github/workflows/release.yml`** — on tags/dispatch: buildx **bake + push** all platform images (registry from env), **cosign** keyless image signing, and Apple credential import from CI secrets.
 
 ## Contributing
