@@ -9,7 +9,8 @@ import json
 import unittest
 from pathlib import Path
 
-from edition2.hive import Hive, VMwareWorkerBot
+from edition2.hive import (Hive, PerformanceController, RunMetrics,
+                           VMwareWorkerBot)
 from edition2.orchestrator import RoleRegistry
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config" / "edition2_settings.json"
@@ -156,14 +157,79 @@ class HiveRunTests(unittest.TestCase):
         self.assertIn("AicodeX Hive — Cluster Report", text)
         self.assertIn("Load rebalanced", text)
         self.assertIn("Data patches applied", text)
+        self.assertIn("Performance:", text)
 
     def test_deterministic_with_injected_samples(self) -> None:
         def build() -> Hive:
+            # A fresh fixed-tick clock per build keeps the run deterministic.
             return Hive([_bot("skeleton_architect", "Claude", load=95.0),
-                         _bot("formation_planner", "Gemini", load=5.0)])
+                         _bot("formation_planner", "Gemini", load=5.0)],
+                        performance=PerformanceController(
+                            clock=iter([0.0, 0.05]).__next__))
         first = build().run().render()
         second = build().run().render()
         self.assertEqual(first, second)
+
+
+class PerformanceControlTests(unittest.TestCase):
+    def test_controller_bounds_parallel_fan_in(self) -> None:
+        controller = PerformanceController(max_workers=2)
+        # 7 enabled roles; the fan-in must be capped at 2.
+        self.assertEqual(controller.effective_workers(7), 2)
+        self.assertEqual(controller.effective_workers(7, requested=6), 2)
+
+    def test_controller_respects_caller_and_bot_count(self) -> None:
+        controller = PerformanceController(max_workers=8)
+        self.assertEqual(controller.effective_workers(3), 3)     # bot count
+        self.assertEqual(controller.effective_workers(7, requested=4), 4)
+
+    def test_controller_never_zero_workers(self) -> None:
+        controller = PerformanceController(max_workers=1)
+        self.assertGreaterEqual(controller.effective_workers(5), 1)
+
+    def test_analyze_applies_concurrency_limit(self) -> None:
+        hive = Hive.from_roles(_roles(),
+                               performance=PerformanceController(max_workers=2))
+        report = hive.run()
+        self.assertEqual(report.metrics.concurrency, 2)
+        self.assertEqual(report.metrics.workers, 7)
+
+    def test_reports_carry_control_action(self) -> None:
+        controller = PerformanceController(target_utilisation=0.65, band=0.20)
+        bots = [_bot("skeleton_architect", "Claude", load=95.0),   # over → cap
+                _bot("formation_planner", "Gemini", load=5.0),     # under → boost
+                _bot("base_coder", "Cursor", load=65.0)]           # in band → hold
+        hive = Hive(bots, performance=controller)
+        reports = {r.bot: r for r in hive.analyze()}
+        self.assertEqual(reports["skeleton_architect"].control, "cap")
+        self.assertEqual(reports["formation_planner"].control, "boost")
+        self.assertEqual(reports["base_coder"].control, "hold")
+
+    def test_invalid_target_utilisation_rejected(self) -> None:
+        for bad in (0.0, 1.0, -0.5, 1.5):
+            with self.assertRaises(ValueError):
+                PerformanceController(target_utilisation=bad)
+
+    def test_run_metrics_populated(self) -> None:
+        ticks = iter([100.0, 100.05])
+        controller = PerformanceController(clock=lambda: next(ticks))
+        bots = [_bot("skeleton_architect", "Claude", load=95.0),
+                _bot("formation_planner", "Gemini", load=5.0)]
+        report = Hive(bots, performance=controller).run()
+        self.assertAlmostEqual(report.metrics.elapsed_s, 0.05, places=6)
+        self.assertEqual(report.metrics.workers, 2)
+        self.assertGreaterEqual(report.metrics.moves, 1)
+        self.assertGreater(report.metrics.moved, 0.0)
+
+    def test_metrics_as_dict_feeds_monitor_valves(self) -> None:
+        report = Hive.from_roles(_roles()).run()
+        metrics = report.metrics.as_dict()
+        for key in ("hive.workers", "hive.concurrency",
+                    "hive.bots_per_second", "hive.moved"):
+            self.assertIn(key, metrics)
+
+    def test_throughput_zero_when_no_elapsed(self) -> None:
+        self.assertEqual(RunMetrics(workers=4, elapsed_s=0.0).bots_per_second, 0.0)
 
 
 if __name__ == "__main__":

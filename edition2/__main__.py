@@ -219,13 +219,23 @@ def main(argv: Optional[List[str]] = None) -> int:
     seeds = set(orchestration.get("seeds", [])) if isinstance(orchestration, dict) else set()
 
     if args.hive:
+        from .hive import PerformanceController
         hive_cfg = config.get("hive", {}) if isinstance(config.get("hive"), dict) else {}
+        perf_cfg = (hive_cfg.get("performance", {})
+                    if isinstance(hive_cfg.get("performance"), dict) else {})
+        perf_max = perf_cfg.get("max_workers")
+        performance = PerformanceController(
+            max_workers=None if perf_max is None else int(perf_max),
+            target_utilisation=float(perf_cfg.get("target_utilisation", 0.65)),
+            band=float(perf_cfg.get("band", 0.20)),
+        )
         hive = Hive.from_roles(
             registry.enabled_roles(),
             capacity=float(hive_cfg.get("worker_capacity", 100.0)),
             peak_threshold=float(hive_cfg.get("peak_threshold", 0.85)),
             trough_threshold=float(hive_cfg.get("trough_threshold", 0.30)),
             research_source_model=str(hive_cfg.get("research_source_model", "Mistral")),
+            performance=performance,
         )
         report = hive.run(max_workers=int(hive_cfg.get("max_workers", 8)))
         print(report.render())

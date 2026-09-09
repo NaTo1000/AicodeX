@@ -14,12 +14,20 @@ the first in parallel:
 
 The implementation is deliberately dependency-free and deterministic when load
 and bandwidth samples are injected, which keeps it fully testable offline.
+
+**Performance control** — a :class:`PerformanceController` governs the
+multi-agent parallel operations of the worker-bot collection: it bounds the
+parallel fan-in (max concurrent samplers), keeps the balanced collection's
+utilisation inside a target band, and records per-run performance metrics
+(worker count, elapsed wall-clock, throughput) that can be forwarded to the
+realtime monitor. It is deterministic when the clock is injected.
 """
 
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
+import time
 from typing import Callable, Dict, List, Optional, Sequence
 
 from ..orchestrator import RoleSpec
@@ -40,6 +48,7 @@ class BotReport:
     bandwidth_mbps: float            # measured bandwidth
     gaps: List[str] = field(default_factory=list)       # bandwidth gaps seen
     state: str = "idle"              # idle | peak | trough
+    control: str = "none"            # performance-control action applied
 
     @property
     def utilisation(self) -> float:
@@ -69,6 +78,110 @@ class DataPatch:
     innovation: str
 
 
+# ---------------------------------------------------------------------------
+# Performance control
+# ---------------------------------------------------------------------------
+
+@dataclass
+class RunMetrics:
+    """Performance metrics collected from one hive run."""
+
+    workers: int = 0                 # worker bots in the collection
+    concurrency: int = 0             # effective parallel fan-in used
+    elapsed_s: float = 0.0           # wall-clock for analyse+balance+patch
+    moves: int = 0                   # load moves applied by balancing
+    moved: float = 0.0               # total load moved
+    patches: int = 0                 # data-gap patches applied
+
+    @property
+    def bots_per_second(self) -> float:
+        """Parallel-operation throughput (bots analysed per second)."""
+        if self.elapsed_s <= 0:
+            return 0.0
+        return self.workers / self.elapsed_s
+
+    def as_dict(self) -> Dict[str, float]:
+        return {
+            "hive.workers": float(self.workers),
+            "hive.concurrency": float(self.concurrency),
+            "hive.elapsed_s": float(self.elapsed_s),
+            "hive.bots_per_second": float(self.bots_per_second),
+            "hive.moves": float(self.moves),
+            "hive.moved": float(self.moved),
+            "hive.patches": float(self.patches),
+        }
+
+
+class PerformanceController:
+    """Governs the hive's parallel worker-bot operations.
+
+    Parameters
+    ----------
+    max_workers:
+        Upper bound on the parallel fan-in (how many bots may sample at
+        once). ``None``/``0`` means "no extra bound" — the pool defaults to
+        ``min(32, len(bots))``.
+    target_utilisation:
+        Centre of the utilisation band the balanced collection should settle
+        into. Bots above the band are *capped* (shed into troughs first);
+        bots below it are *boosted* (marked as headroom for scheduling).
+    band:
+        Half-width of the acceptable utilisation band around the target.
+    clock:
+        Time source; injected for determinism in tests.
+    """
+
+    def __init__(self, max_workers: Optional[int] = None,
+                 target_utilisation: float = 0.65,
+                 band: float = 0.20,
+                 clock: Callable[[], float] = time.monotonic) -> None:
+        if max_workers is not None and int(max_workers) <= 0:
+            max_workers = None
+        self.max_workers = None if max_workers is None else int(max_workers)
+        if not (0.0 < target_utilisation < 1.0):
+            raise ValueError("target_utilisation must be within (0, 1)")
+        if band < 0.0:
+            raise ValueError("band must be >= 0")
+        self.target = float(target_utilisation)
+        self.band = float(band)
+        self._clock = clock
+
+    # -- concurrency control ------------------------------------------------
+
+    def effective_workers(self, bot_count: int,
+                          requested: Optional[int] = None) -> int:
+        """The parallel fan-in actually allowed for a run.
+
+        Bounded by the configured ``max_workers`` when set, the caller's
+        request, and the bot count — never zero while bots exist.
+        """
+        ceiling = min(32, max(1, bot_count))
+        limit = ceiling
+        if self.max_workers is not None:
+            limit = min(limit, self.max_workers)
+        if requested is not None:
+            limit = min(limit, max(1, int(requested)))
+        return max(1, limit)
+
+    # -- utilisation control --------------------------------------------------
+
+    def over(self, report: BotReport) -> bool:
+        """Whether a bot sits above the target utilisation band."""
+        return report.utilisation > self.target + self.band
+
+    def under(self, report: BotReport) -> bool:
+        """Whether a bot sits below the target utilisation band (headroom)."""
+        return report.utilisation < self.target - self.band
+
+    def classify_control(self, report: BotReport) -> str:
+        """The control action for one bot: ``cap`` | ``boost`` | ``hold``."""
+        if self.over(report):
+            return "cap"
+        if self.under(report):
+            return "boost"
+        return "hold"
+
+
 @dataclass
 class HiveReport:
     """Aggregate result of a full hive run."""
@@ -76,6 +189,7 @@ class HiveReport:
     bots: List[BotReport] = field(default_factory=list)
     balance: LoadBalanceResult = field(default_factory=LoadBalanceResult)
     patches: List[DataPatch] = field(default_factory=list)
+    metrics: RunMetrics = field(default_factory=RunMetrics)
 
     def render(self) -> str:
         lines = ["AicodeX Hive — Cluster Report", "=" * 55]
@@ -84,7 +198,7 @@ class HiveReport:
                 f"  {bot.bot:<22} {bot.model:<9} "
                 f"load={bot.load:>5.1f}/{bot.capacity:<5.1f} "
                 f"({bot.utilisation:>5.0%})  bw={bot.bandwidth_mbps:>7.1f}Mbps  "
-                f"state={bot.state}")
+                f"state={bot.state}  ctl={bot.control}")
         lines.append("-" * 55)
         lines.append(f"Load rebalanced: {self.balance.moved_total:.1f} units "
                      f"across {len(self.balance.moves)} move(s)")
@@ -94,6 +208,12 @@ class HiveReport:
         for patch in self.patches:
             lines.append(f"    {patch.bit} <= {patch.innovation} "
                          f"[{patch.source_model}]")
+        lines.append("-" * 55)
+        lines.append(
+            f"Performance: {self.metrics.workers} bots @ "
+            f"{self.metrics.concurrency} concurrent  "
+            f"{self.metrics.elapsed_s * 1000:.1f} ms  "
+            f"({self.metrics.bots_per_second:.1f} bots/s)")
         return "\n".join(lines)
 
 
@@ -162,13 +282,15 @@ class Hive:
     def __init__(self, bots: Sequence[VMwareWorkerBot],
                  peak_threshold: float = 0.85,
                  trough_threshold: float = 0.30,
-                 research_source_model: str = "Mistral") -> None:
+                 research_source_model: str = "Mistral",
+                 performance: Optional[PerformanceController] = None) -> None:
         if not bots:
             raise ValueError("Hive requires at least one worker bot")
         self.bots: List[VMwareWorkerBot] = list(bots)
         self.peak_threshold = float(peak_threshold)
         self.trough_threshold = float(trough_threshold)
         self.research_source_model = research_source_model
+        self.performance = performance or PerformanceController()
 
     # -- construction ------------------------------------------------------
 
@@ -185,12 +307,20 @@ class Hive:
     # -- phase 1: parallel analysis ----------------------------------------
 
     def analyze(self, max_workers: Optional[int] = None) -> List[BotReport]:
-        """Sample every bot in parallel and classify peaks and troughs."""
-        workers = max_workers or min(32, len(self.bots))
+        """Sample every bot in parallel and classify peaks and troughs.
+
+        The parallel fan-in is bounded by the performance controller
+        (:meth:`PerformanceController.effective_workers`), and each report is
+        tagged with the control action (cap/boost/hold) the controller
+        applies to its utilisation.
+        """
+        workers = self.performance.effective_workers(len(self.bots),
+                                                     requested=max_workers)
         with ThreadPoolExecutor(max_workers=workers) as pool:
             reports = list(pool.map(lambda b: b.sample(), self.bots))
         for report in reports:
             report.state = self._classify(report)
+            report.control = self.performance.classify_control(report)
         return reports
 
     def _classify(self, report: BotReport) -> str:
@@ -266,8 +396,26 @@ class Hive:
 
     def run(self, research_results: Optional[Dict[str, str]] = None,
             max_workers: Optional[int] = None) -> HiveReport:
-        """Execute analyse → balance → patch and return a :class:`HiveReport`."""
+        """Execute analyse → balance → patch and return a :class:`HiveReport`.
+
+        The parallel analyse phase is timed and governed by the performance
+        controller; the resulting :class:`RunMetrics` are attached to the
+        report for the monitor valves.
+        """
+        clock = self.performance._clock
+        start = clock()
         reports = self.analyze(max_workers=max_workers)
         balance = self.balance(reports)
         patches = self.patch(reports, research_results=research_results)
-        return HiveReport(bots=reports, balance=balance, patches=patches)
+        elapsed = max(0.0, clock() - start)
+        metrics = RunMetrics(
+            workers=len(reports),
+            concurrency=self.performance.effective_workers(
+                len(self.bots), requested=max_workers),
+            elapsed_s=elapsed,
+            moves=len(balance.moves),
+            moved=balance.moved_total,
+            patches=len(patches),
+        )
+        return HiveReport(bots=reports, balance=balance, patches=patches,
+                          metrics=metrics)
