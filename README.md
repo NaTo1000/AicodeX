@@ -28,6 +28,7 @@
 - ⚡ **Quick Actions** - One-click access to common development tasks
 - 🎨 **Highly Customizable** - Configure hotkeys, appearance, and behavior
 - 🔧 **HandBrake Integration** - Check and download the latest HandBrake version
+- 🛡️ **Crash Resilience** - Per-section codec & driver rollover fallbacks with mirror cloud drives for system crashes and user restore
 - 🖥️ **Windows Optimized** - Built specifically for Windows development workflows
 
 ## Installation
@@ -188,6 +189,60 @@ Add new snippets to the configuration file:
 }
 ```
 
+## Crash Resilience & User Restore
+
+AicodeX can fine-tune each configuration section with its own codecs and
+storage drivers, with full rollover fallbacks and mirror cloud drives so
+settings survive system crashes and can be restored by the user at any time.
+
+Enable it in the configuration file:
+
+```json
+{
+  "resilience": {
+    "enabled": true,
+    "storage_dir": ".aicodex",
+    "backup_count": 5,
+    "codecs": {
+      "window": ["zlib", "base64", "utf-8"]
+    },
+    "drivers": {
+      "window": ["local", "cloud"]
+    },
+    "driver_registry": {
+      "local": {"type": "local", "path": ".aicodex"},
+      "cloud": {"type": "mirror-cloud",
+                "paths": ["/path/to/OneDrive/AicodeX",
+                          "/path/to/Dropbox/AicodeX"]}
+    },
+    "defaults": {
+      "codecs": ["utf-8", "base64"],
+      "drivers": ["local", "cloud"]
+    }
+  }
+}
+```
+
+How it works:
+
+- **Codecs** — every section is encoded with its primary codec (first in its
+  chain). On load, decoding rolls over the full chain (`zlib` → `base64` →
+  `utf-8`, …) until one codec succeeds, so payloads stay readable even if
+  the primary codec changes or a copy is partially corrupted.
+- **Drivers** — every save is mirrored to each driver in the section's chain:
+  the local storage directory *and* every mounted cloud drive (OneDrive,
+  Dropbox, network shares — any synced directory). On load, reads roll over
+  across the local copy and each individual cloud mirror until a good copy
+  is found; a missing or unmounted drive is fully tolerated.
+- **Crash recovery** — a start/clean-shutdown marker detects system crashes.
+  After a crash, every section is verified through the rollover chains and
+  any unreadable section is automatically restored from its latest mirrored
+  backup.
+- **User restore** — each section keeps a rolling history of backups
+  (`backup_count`). Use `config.restore_section(name)` to roll a section
+  back to its most recent backup, or `config.list_section_backups(name)` +
+  `config.restore_section(name, stamp)` to pick a specific point in time.
+
 ## HandBrake Integration
 
 AicodeX includes integration with HandBrake for video encoding tasks:
@@ -216,6 +271,9 @@ AicodeX/
 │   ├── overlay.py                 # Overlay window implementation
 │   ├── hotkeys.py                 # Hotkey management
 │   ├── config.py                  # Configuration management
+│   ├── aicodex_codecs.py          # Codec registry with rollover fallback chains
+│   ├── drivers.py                 # Storage drivers with mirror cloud drives
+│   ├── resilience.py              # Crash recovery & user restore manager
 │   └── utils/
 │       └── handbrake_checker.py   # HandBrake integration
 ├── config/

@@ -74,3 +74,6 @@ xcuserdata/
 *.mobileprovision
 *.provisionprofile
 apple/.asc-private-key
+
+# Resilience storage (local section mirrors/backups)
+.aicodex/

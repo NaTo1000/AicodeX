@@ -59,6 +59,7 @@ def main():
         print("\nShutting down AicodeX...")
     finally:
         hotkey_manager.unregister_all()
+        config.shutdown()
         print("AicodeX stopped.")
 
 

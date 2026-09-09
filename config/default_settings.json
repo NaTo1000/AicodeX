@@ -38,5 +38,17 @@
     "handbrake_integration": true,
     "auto_format": true,
     "snippet_suggestions": true
+  },
+  "resilience": {
+    "enabled": false,
+    "storage_dir": ".aicodex",
+    "backup_count": 5,
+    "codecs": {},
+    "drivers": {},
+    "driver_registry": {},
+    "defaults": {
+      "codecs": ["utf-8", "base64"],
+      "drivers": ["local"]
+    }
   }
 }
