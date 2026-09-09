@@ -166,12 +166,12 @@
   "prompts": {
     "description": "Six prompt registers, each committed under an algorithmically different digest; all six are deciphered simultaneously and reconciled by union so nothing is ever missed.",
     "registers": {
-      "R1": { "role": "skeleton_architect", "prompt": "Design the skeleton structure and overall code-base architecture." },
-      "R2": { "role": "formation_planner", "prompt": "Set up the formation system, project scaffolding and TODO planning." },
-      "R3": { "role": "base_coder", "prompt": "Write the base code structure on top of the skeleton." },
-      "R4": { "role": "error_patcher", "prompt": "Run code-base error checks and apply patching refinements." },
-      "R5": { "role": "security_netops", "prompt": "Manage the security system, network topology and port-allocation structure." },
-      "R6": { "role": "spec_logger", "prompt": "Produce full-spec logging and advanced workflow mapping." }
+      "R1": { "role": "skeleton_architect", "prompt": "Design the skeleton structure and overall code-base architecture.", "parameters": { "lod": "detailed", "max_tokens": 3072, "max_bytes": 65536 } },
+      "R2": { "role": "formation_planner", "prompt": "Set up the formation system, project scaffolding and TODO planning.", "parameters": { "lod": "standard", "max_tokens": 2048, "max_bytes": 65536 } },
+      "R3": { "role": "base_coder", "prompt": "Write the base code structure on top of the skeleton.", "parameters": { "lod": "standard", "max_tokens": 4096, "max_bytes": 131072 } },
+      "R4": { "role": "error_patcher", "prompt": "Run code-base error checks and apply patching refinements.", "parameters": { "lod": "standard", "max_tokens": 2048, "max_bytes": 65536 } },
+      "R5": { "role": "security_netops", "prompt": "Manage the security system, network topology and port-allocation structure.", "parameters": { "lod": "detailed", "max_tokens": 3072, "max_bytes": 131072 } },
+      "R6": { "role": "spec_logger", "prompt": "Produce full-spec logging and advanced workflow mapping.", "parameters": { "lod": "exhaustive", "max_tokens": 6144, "max_bytes": 262144 } }
     }
   },
   "crossover": {

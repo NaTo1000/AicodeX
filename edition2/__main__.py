@@ -87,6 +87,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--decipher-prompts", action="store_true",
                         help="decipher all six prompt registers at the same "
                              "time and reconcile by union")
+    parser.add_argument("--align-prompts", action="store_true",
+                        help="align committed prompt parameters against the "
+                             "application's measured output and fine-tune "
+                             "drifted registers")
     return parser
 
 
@@ -193,13 +197,20 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(f"{key}: {value}")
         return 0
 
-    if args.prompts or args.decipher_prompts:
+    if args.prompts or args.decipher_prompts or args.align_prompts:
         from .prompts import PromptRegistry
         p_cfg = config.get("prompts", {}) if isinstance(config.get("prompts"), dict) else {}
         registry = PromptRegistry(p_cfg.get("registers", {}))
         registry.register()
         if args.decipher_prompts:
             print(registry.render_decipher(registry.decipher()))
+        elif args.align_prompts:
+            app_output = p_cfg.get("app_output", {})
+            drifts = registry.align(app_output)
+            guidance: list = []
+            registry.fine_tune(drifts, guidance=guidance)
+            print(registry.render_alignment(registry.align(app_output),
+                                            guidance=guidance))
         else:
             print(registry.render())
         return 0

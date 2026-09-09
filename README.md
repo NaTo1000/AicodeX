@@ -179,6 +179,27 @@ python -m edition2 --decipher-prompts  # decipher all six simultaneously (union)
 
 Register seeds live in the `prompts` section of `config/edition2_settings.json`.
 
+#### Commit parameters, alignment & the fine-tuner
+
+Each commitment also carries **generation parameters** — a *level-of-detail* (`lod`), `temperature`, `top_p`, `max_tokens`, and a `max_bytes` **size ceiling** — folded into the register's digest. The registry **aligns** these against the application's measured output (e.g. the metrics deck's tokens/bytes per output) and **fine-tunes** any register that drifted:
+
+- **Size blowout** (observed bytes > `max_bytes` ceiling) → **reduce**: drop the LoD level and shrink the token budget.
+- **Far under budget** → **extend**: raise the LoD level when more detail is expected.
+- Numeric parameters are nudged halfway toward the observed value and clamped to bounds.
+
+**Extension/reduction by level of detail** — each level multiplies the token budget and carries *where/when* guidance so application size doesn't blow out:
+
+| Level | Factor | Apply when | Apply where |
+|-------|--------|------------|-------------|
+| `minimal` | ×0.4 (reduction) | scaffolding, stubs, hot paths, size-constrained targets | anywhere size matters more than completeness |
+| `standard` | ×1.0 | default general-purpose generation | most roles; balanced detail vs size |
+| `detailed` | ×1.6 | public APIs, security/compliance, tricky algorithms | where correctness matters — watch the ceiling |
+| `exhaustive` | ×2.5 (extension) | reference docs, audits, one-off deep dives | only where a full treatment is required |
+
+```bash
+python -m edition2 --align-prompts     # align vs app output, fine-tune, show guidance
+```
+
 ## AI Writers Integration
 
 AicodeX is integrated as the **internal overlayer for the AI writers** — it provides the shared overlay layer that AI writing tools use to surface hotkey-driven, in-context coding and writing assistance on top of any application.
