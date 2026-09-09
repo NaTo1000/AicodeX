@@ -17,6 +17,55 @@ secrets.
 | Distribution certificate password | `APPLE_DIST_CERT_PASSWORD` | secret |
 | Provisioning profile | `APPLE_PROVISION_PROFILE` | base64 `.mobileprovision` (secret) |
 | Bundle ID | `AICODEX_BUNDLE_ID` | e.g. `com.aicodex.app` |
+| App Store Connect App ID | `APPSTORE_APP_ID` | Numeric ID of the app record |
+
+## Product registration
+
+Register the product across Apple's surfaces before the first archive. All of
+these live in the developer portal / App Store Connect — **nothing registrable
+is committed to this repository**.
+
+1. **App ID (bundle identifier):** Developer portal → Identifiers → register an
+   *explicit* App ID matching `AICODEX_BUNDLE_ID` (e.g. `com.aicodex.app`).
+   Wildcard App IDs cannot use the capabilities below.
+2. **Capabilities:** on the App ID, enable the capabilities the cluster uses —
+   **iCloud ▸ Key-Value Storage** (cross-device sync), **App Groups** (shared
+   state between watch/phone/iPad/Mac), and **Sign In with Apple** if account
+   sign-in ships. Re-create provisioning profiles after changing capabilities.
+3. **Per-platform provisioning profiles:** create an App Store profile per
+   shipped platform — iOS, macOS, and watchOS (the watch app is bundled in the
+   iOS archive). Base64-encode each as `APPLE_PROVISION_PROFILE` for CI.
+4. **App Store Connect app record:** create the app (App Store Connect → My
+   Apps → +) bound to the registered bundle ID; record its numeric
+   **App ID** as `APPSTORE_APP_ID` for upload/notarization calls.
+5. **Agreements:** keep the *Paid Apps* agreement, banking/tax forms, and the
+   latest license agreements accepted in App Store Connect — uploads fail with
+   a compliance error when any agreement lapses.
+
+## Compliance requirements
+
+Shipping on Apple platforms carries standing compliance obligations:
+
+- **Export compliance (encryption):** the app uses only Apple-provided
+  cryptography (iCloud sync, TLS), which qualifies for the standard exemption.
+  Declare it once by setting **`ITSAppUsesNonExemptEncryption` = `false`** in
+  the app `Info.plist` so App Store Connect stops prompting for export
+  compliance on every build. If non-exempt crypto is ever added, file an ERN
+  and flip the key.
+- **Privacy manifest:** include **`PrivacyInfo.xcprivacy`** declaring required
+  reason APIs, collected data types, and third-party SDK domains. This is
+  mandatory for App Store submission.
+- **App privacy details (nutrition labels):** keep the data-collection
+  declarations in App Store Connect in sync with the manifest.
+- **Age rating & content rights:** complete the age-rating questionnaire and
+  content-rights declaration for the app record; review them whenever features
+  change.
+- **Notarization (macOS):** archive builds distributed outside the App Store
+  must be notarized with the App Store Connect API key
+  (`APPSTORE_KEY_ID`/`APPSTORE_ISSUER_ID`/`APPSTORE_PRIVATE_KEY`).
+- **Beta distribution:** TestFlight builds require *Export Compliance* and
+  *Beta App Review* approval before external testers; internal testers only
+  need the export declaration above.
 
 ## Setup steps
 

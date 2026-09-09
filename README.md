@@ -565,7 +565,7 @@ The `apple/` directory contains the SwiftUI build for Xcode — an **HD GUI clus
 - **`apple/Sources/AicodeXApp/`** — the **buildable SwiftUI app target**: the `@main` entry point, the HD `ContentView` (per-device live progress + iCloud connectivity status), and `ClusterStore` bridging `AicodeXCore` to `NSUbiquitousKeyValueStore` for realtime cross-device sync. The sources use **conditional compilation** (`#if canImport(SwiftUI)`), so `swift build`/`swift run` succeed cross-platform while the full SwiftUI UI is compiled on Apple platforms (and via Xcode for the App Store).
 - **`apple/Package.swift`** — Swift package (iOS 16 / macOS 13 / watchOS 9): the `AicodeXCore` library, the `AicodeXApp` executable, and the test target.
 - **`apple/ExportOptions.plist`** — export options referencing `$(APPLE_TEAM_ID)` only.
-- **`apple/APPLE_CREDENTIALS.md`** — how to prepare Apple Developer credentials. **No certificates, keys, or profiles are committed**; supply them via environment variables / CI secrets.
+- **`apple/APPLE_CREDENTIALS.md`** — how to prepare Apple Developer credentials, plus **product registration** (explicit App ID, capabilities, per-platform provisioning profiles, App Store Connect app record) and **compliance requirements** (export/encryption declaration, `PrivacyInfo.xcprivacy` manifest, age rating, macOS notarization). **No certificates, keys, or profiles are committed**; supply them via environment variables / CI secrets.
 
 ```bash
 cd apple

@@ -8,6 +8,13 @@
 		Credentials are supplied at build time via environment variables / CI
 		secrets — this file contains NO certificates, keys, or passwords.
 		See APPLE_CREDENTIALS.md.
+
+		Compliance note: the app declares `ITSAppUsesNonExemptEncryption = false`
+		in its Info.plist (Apple-provided crypto only — iCloud sync, TLS), so App
+		Store Connect does not prompt for export compliance on each upload. A
+		`PrivacyInfo.xcprivacy` manifest ships in the app bundle. See the
+		"Product registration" and "Compliance requirements" sections of
+		APPLE_CREDENTIALS.md.
 	-->
 	<key>method</key>
 	<string>app-store</string>

@@ -161,5 +161,52 @@ class XcodeVersionChannelTests(unittest.TestCase):
         self.assertIn("non-beta", text)
 
 
+class AppleRegistrationComplianceTests(unittest.TestCase):
+    """Product registration + compliance requirements must stay documented."""
+
+    def setUp(self) -> None:
+        self.text = _read(CREDS_MD)
+
+    def test_product_registration_section(self) -> None:
+        self.assertIn("## Product registration", self.text)
+        # Explicit App ID + bundle identifier registration.
+        self.assertIn("explicit", self.text)
+        self.assertIn("AICODEX_BUNDLE_ID", self.text)
+
+    def test_capabilities_registered(self) -> None:
+        for capability in ("Key-Value Storage", "App Groups",
+                           "Sign In with Apple"):
+            self.assertIn(capability, self.text,
+                          f"capability '{capability}' must be registered")
+
+    def test_per_platform_provisioning(self) -> None:
+        for platform in ("iOS", "macOS", "watchOS"):
+            self.assertIn(platform, self.text,
+                          f"provisioning profile for {platform} required")
+
+    def test_app_store_connect_record(self) -> None:
+        self.assertIn("APPSTORE_APP_ID", self.text)
+        self.assertIn("App Store Connect app record", self.text)
+
+    def test_compliance_section(self) -> None:
+        self.assertIn("## Compliance requirements", self.text)
+
+    def test_export_compliance_declared(self) -> None:
+        # Apple-provided crypto only → non-exempt-encryption key stays false.
+        self.assertIn("ITSAppUsesNonExemptEncryption", self.text)
+        self.assertIn("`false`", self.text)
+
+    def test_privacy_manifest_required(self) -> None:
+        self.assertIn("PrivacyInfo.xcprivacy", self.text)
+
+    def test_notarization_documented(self) -> None:
+        self.assertIn("Notarization", self.text)
+
+    def test_export_options_notes_compliance(self) -> None:
+        text = _read(EXPORT_PLIST)
+        self.assertIn("ITSAppUsesNonExemptEncryption", text)
+        self.assertIn("PrivacyInfo.xcprivacy", text)
+
+
 if __name__ == "__main__":
     unittest.main()
