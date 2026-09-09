@@ -1,0 +1,961 @@
+{
+  "builtTestProducts" : [
+    {
+      "binaryPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.xctest",
+      "packagePath" : "/home/runner/work/AicodeX/AicodeX/apple",
+      "productName" : "AicodeXPackageTests"
+    }
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+    "AicodeXPackageDiscoveredTests"
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.AicodeXApp-x86_64-unknown-linux-gnu-debug.module" : {
+      "executable" : "/usr/share/swift/usr/bin/swiftc",
+      "fileList" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/sources",
+      "importPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/AicodeXApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/ClusterStore.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/ContentView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXCore.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "AicodeXApp",
+      "moduleOutputPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXApp.swiftmodule",
+      "objects" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/AicodeXApp.swift.o",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/ClusterStore.swift.o",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/ContentView.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "x86_64-unknown-linux-gnu",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-j4",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "AicodeXApp_main",
+        "-swift-version",
+        "5",
+        "-g",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "apple",
+        "-Xcc",
+        "-fno-omit-frame-pointer"
+      ],
+      "outputFileMapPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/AicodeXApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/ClusterStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXApp.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/AicodeXApp.swift",
+        "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/ClusterStore.swift",
+        "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/ContentView.swift"
+      ],
+      "tempsPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.AicodeXAppTests-x86_64-unknown-linux-gnu-debug.module" : {
+      "executable" : "/usr/share/swift/usr/bin/swiftc",
+      "fileList" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/sources",
+      "importPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Tests/AicodeXAppTests/ClusterCoreTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXCore.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "AicodeXAppTests",
+      "moduleOutputPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXAppTests.swiftmodule",
+      "objects" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/ClusterCoreTests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "x86_64-unknown-linux-gnu",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j4",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-swift-version",
+        "5",
+        "-g",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "apple",
+        "-Xcc",
+        "-fno-omit-frame-pointer"
+      ],
+      "outputFileMapPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/ClusterCoreTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXAppTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/Tests/AicodeXAppTests/ClusterCoreTests.swift"
+      ],
+      "tempsPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.AicodeXCore-x86_64-unknown-linux-gnu-debug.module" : {
+      "executable" : "/usr/share/swift/usr/bin/swiftc",
+      "fileList" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/sources",
+      "importPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXCore/ClusterCore.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXCore/ClusterDevice.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "AicodeXCore",
+      "moduleOutputPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXCore.swiftmodule",
+      "objects" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/ClusterCore.swift.o",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/ClusterDevice.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "x86_64-unknown-linux-gnu",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-j4",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/include/AicodeXCore-Swift.h",
+        "-swift-version",
+        "5",
+        "-g",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "apple",
+        "-Xcc",
+        "-fno-omit-frame-pointer"
+      ],
+      "outputFileMapPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/ClusterCore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/ClusterDevice.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXCore.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXCore/ClusterCore.swift",
+        "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXCore/ClusterDevice.swift"
+      ],
+      "tempsPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.AicodeXPackageDiscoveredTests-x86_64-unknown-linux-gnu-debug.module" : {
+      "executable" : "/usr/share/swift/usr/bin/swiftc",
+      "fileList" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/sources",
+      "importPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/AicodeXAppTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/all-discovered-tests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXAppTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "AicodeXPackageDiscoveredTests",
+      "moduleOutputPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXPackageDiscoveredTests.swiftmodule",
+      "objects" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/AicodeXAppTests.swift.o",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/all-discovered-tests.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "x86_64-unknown-linux-gnu",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j4",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/include/AicodeXPackageDiscoveredTests-Swift.h",
+        "-g",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "apple",
+        "-Xcc",
+        "-fno-omit-frame-pointer"
+      ],
+      "outputFileMapPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/AicodeXAppTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/all-discovered-tests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXPackageDiscoveredTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/AicodeXAppTests.swift",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/all-discovered-tests.swift"
+      ],
+      "tempsPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build",
+      "wholeModuleOptimization" : false
+    },
+    "C.AicodeXPackageTests-x86_64-unknown-linux-gnu-debug.module" : {
+      "executable" : "/usr/share/swift/usr/bin/swiftc",
+      "fileList" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/sources",
+      "importPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.derived/runner.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXAppTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXPackageDiscoveredTests.swiftmodule"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/sources"
+        }
+      ],
+      "isLibrary" : true,
+      "moduleName" : "AicodeXPackageTests",
+      "moduleOutputPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXPackageTests.swiftmodule",
+      "objects" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/runner.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "x86_64-unknown-linux-gnu",
+        "-incremental",
+        "-enable-batch-mode",
+        "-serialize-diagnostics",
+        "-index-store-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+        "-Onone",
+        "-enable-testing",
+        "-Xfrontend",
+        "-enable-cross-import-overlays",
+        "-j4",
+        "-DSWIFT_PACKAGE",
+        "-DDEBUG",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+        "-parseable-output",
+        "-parse-as-library",
+        "-emit-objc-header",
+        "-emit-objc-header-path",
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/include/AicodeXPackageTests-Swift.h",
+        "-g",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g",
+        "-package-name",
+        "apple",
+        "-Xcc",
+        "-fno-omit-frame-pointer"
+      ],
+      "outputFileMapPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/runner.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXPackageTests.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.derived/runner.swift"
+      ],
+      "tempsPath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build",
+      "wholeModuleOptimization" : false
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "AicodeXApp" : [
+      "/usr/share/swift/usr/bin/swiftc",
+      "-module-name",
+      "AicodeXApp",
+      "-package-name",
+      "apple",
+      "-c",
+      "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/AicodeXApp.swift",
+      "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/ClusterStore.swift",
+      "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/ContentView.swift",
+      "-I",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "-target",
+      "x86_64-unknown-linux-gnu",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-j4",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "AicodeXApp_main",
+      "-swift-version",
+      "5",
+      "-g",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "apple",
+      "-Xcc",
+      "-fno-omit-frame-pointer",
+      "-driver-use-frontend-path",
+      "/usr/share/swift/usr/bin/swiftc"
+    ],
+    "AicodeXAppTests" : [
+      "/usr/share/swift/usr/bin/swiftc",
+      "-module-name",
+      "AicodeXAppTests",
+      "-package-name",
+      "apple",
+      "-c",
+      "/home/runner/work/AicodeX/AicodeX/apple/Tests/AicodeXAppTests/ClusterCoreTests.swift",
+      "-I",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "-target",
+      "x86_64-unknown-linux-gnu",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j4",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-swift-version",
+      "5",
+      "-g",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "apple",
+      "-Xcc",
+      "-fno-omit-frame-pointer",
+      "-driver-use-frontend-path",
+      "/usr/share/swift/usr/bin/swiftc"
+    ],
+    "AicodeXCore" : [
+      "/usr/share/swift/usr/bin/swiftc",
+      "-module-name",
+      "AicodeXCore",
+      "-package-name",
+      "apple",
+      "-c",
+      "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXCore/ClusterCore.swift",
+      "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXCore/ClusterDevice.swift",
+      "-I",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "-target",
+      "x86_64-unknown-linux-gnu",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-j4",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/include/AicodeXCore-Swift.h",
+      "-swift-version",
+      "5",
+      "-g",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "apple",
+      "-Xcc",
+      "-fno-omit-frame-pointer",
+      "-driver-use-frontend-path",
+      "/usr/share/swift/usr/bin/swiftc"
+    ],
+    "AicodeXPackageDiscoveredTests" : [
+      "/usr/share/swift/usr/bin/swiftc",
+      "-module-name",
+      "AicodeXPackageDiscoveredTests",
+      "-package-name",
+      "apple",
+      "-c",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/AicodeXAppTests.swift",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/all-discovered-tests.swift",
+      "-I",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "-target",
+      "x86_64-unknown-linux-gnu",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j4",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/include/AicodeXPackageDiscoveredTests-Swift.h",
+      "-g",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "apple",
+      "-Xcc",
+      "-fno-omit-frame-pointer",
+      "-driver-use-frontend-path",
+      "/usr/share/swift/usr/bin/swiftc"
+    ],
+    "AicodeXPackageTests" : [
+      "/usr/share/swift/usr/bin/swiftc",
+      "-module-name",
+      "AicodeXPackageTests",
+      "-package-name",
+      "apple",
+      "-c",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.derived/runner.swift",
+      "-I",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules",
+      "-target",
+      "x86_64-unknown-linux-gnu",
+      "-incremental",
+      "-enable-batch-mode",
+      "-serialize-diagnostics",
+      "-index-store-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/index/store",
+      "-Onone",
+      "-enable-testing",
+      "-Xfrontend",
+      "-enable-cross-import-overlays",
+      "-j4",
+      "-DSWIFT_PACKAGE",
+      "-DDEBUG",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
+      "-parseable-output",
+      "-parse-as-library",
+      "-emit-objc-header",
+      "-emit-objc-header-path",
+      "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/include/AicodeXPackageTests-Swift.h",
+      "-g",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-package-name",
+      "apple",
+      "-Xcc",
+      "-fno-omit-frame-pointer",
+      "-driver-use-frontend-path",
+      "/usr/share/swift/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "AicodeXApp" : [
+      "AicodeXCore"
+    ],
+    "AicodeXAppTests" : [
+      "AicodeXApp",
+      "AicodeXCore"
+    ],
+    "AicodeXCore" : [
+
+    ],
+    "AicodeXPackageDiscoveredTests" : [
+      "AicodeXAppTests",
+      "AicodeXApp",
+      "AicodeXCore"
+    ],
+    "AicodeXPackageTests" : [
+      "AicodeXPackageDiscoveredTests",
+      "AicodeXAppTests",
+      "AicodeXApp",
+      "AicodeXCore"
+    ]
+  },
+  "testDiscoveryCommands" : {
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/all-discovered-tests.swift" : {
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/ClusterCoreTests.swift.o"
+        }
+      ],
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/AicodeXAppTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/all-discovered-tests.swift"
+        }
+      ]
+    }
+  },
+  "testEntryPointCommands" : {
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.derived/runner.swift" : {
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/Modules/AicodeXPackageDiscoveredTests.swiftmodule"
+        }
+      ],
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.derived/runner.swift"
+        }
+      ]
+    }
+  },
+  "traitConfiguration" : {
+    "default" : {
+
+    }
+  },
+  "writeCommands" : {
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/AicodeXApp.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/ClusterStore.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXApp/ContentView.swift"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/sources"
+    },
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/AicodeXApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/AicodeXApp.swiftmodule.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/ClusterStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/AicodeXCore.swiftmodule.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/ClusterCore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/ClusterDevice.swift.o"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.product/Objects.LinkFileList"
+    },
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Tests/AicodeXAppTests/ClusterCoreTests.swift"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/sources"
+    },
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXCore/ClusterCore.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/Sources/AicodeXCore/ClusterDevice.swift"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/sources"
+    },
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/AicodeXAppTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.derived/all-discovered-tests.swift"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/sources"
+    },
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.derived/runner.swift"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/sources"
+    },
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/AicodeXApp.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/AicodeXApp.swiftmodule.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/ClusterStore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXApp.build/ContentView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/AicodeXAppTests.swiftmodule.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXAppTests.build/ClusterCoreTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/AicodeXCore.swiftmodule.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/ClusterCore.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXCore.build/ClusterDevice.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/AicodeXAppTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/AicodeXPackageDiscoveredTests.swiftmodule.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageDiscoveredTests.build/all-discovered-tests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/AicodeXPackageTests.swiftmodule.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.build/runner.swift.o"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/AicodeXPackageTests.product/Objects.LinkFileList"
+    },
+    "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/usr/share/swift/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/home/runner/work/AicodeX/AicodeX/apple/.build/x86_64-unknown-linux-gnu/debug/swift-version--1BFCD5C06E9F820A.txt"
+    }
+  }
+}
