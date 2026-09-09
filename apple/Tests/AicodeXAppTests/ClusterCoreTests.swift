@@ -8,13 +8,20 @@ final class ClusterCoreTests: XCTestCase {
 
     func testAllDeviceKindsCovered() {
         XCTAssertEqual(Set(ClusterDevice.Kind.allCases),
-                       [.watch, .phone, .iPad, .mac])
+                       [.watch, .phone, .iPad, .mac,
+                        .macBook, .macBookPro, .arGlasses])
     }
 
     func testEachDeviceHasDistinctFunction() {
         let functions = ClusterDevice.Kind.allCases.map(\.function)
         XCTAssertEqual(functions.count, Set(functions).count,
                        "each device should perform a distinct function")
+    }
+
+    func testEachDeviceHasDistinctIcon() {
+        let icons = ClusterDevice.Kind.allCases.map(\.systemImage)
+        XCTAssertEqual(icons.count, Set(icons).count,
+                       "each device should have a distinct SF Symbol icon")
     }
 
     func testProgressClamping() {
@@ -49,5 +56,53 @@ final class ClusterCoreTests: XCTestCase {
         let decoded = try JSONDecoder().decode(ClusterDevice.self, from: data)
         XCTAssertEqual(decoded.kind, .iPad)
         XCTAssertEqual(decoded.progress, 0.3, accuracy: 1e-9)
+    }
+
+    // MARK: - App tabs
+
+    func testAllTabsPresent() {
+        XCTAssertEqual(Set(AppTab.allCases),
+                       [.cluster, .devices, .display, .settings])
+    }
+
+    func testEachTabHasIconAndTitle() {
+        for tab in AppTab.allCases {
+            XCTAssertFalse(tab.systemImage.isEmpty,
+                           "\(tab) must have an SF Symbol icon")
+            XCTAssertFalse(tab.title.isEmpty,
+                           "\(tab) must have a title")
+        }
+    }
+
+    func testEachTabHasDistinctIcon() {
+        let icons = AppTab.allCases.map(\.systemImage)
+        XCTAssertEqual(icons.count, Set(icons).count,
+                       "each tab should have a distinct icon")
+    }
+
+    // MARK: - Display profiles (HD / 3D)
+
+    func testEveryDeviceIsHD() {
+        for kind in ClusterDevice.Kind.allCases {
+            XCTAssertTrue(kind.displayProfile.isHD,
+                          "\(kind) should present a full-HD surface")
+            XCTAssertFalse(kind.displayProfile.hdLabel.isEmpty)
+        }
+    }
+
+    func testThreeDCapableDevices() {
+        let threeD = ClusterDevice.Kind.allCases.filter(\.displayProfile.supports3D)
+        XCTAssertEqual(Set(threeD), [.macBookPro, .arGlasses],
+                       "MacBook Pro and AR glasses support spatial 3D")
+        for kind in threeD {
+            XCTAssertEqual(kind.displayProfile.rendering, .spatial3D)
+        }
+    }
+
+    func testNon3DDevicesRender2D() {
+        for kind in [ClusterDevice.Kind.watch, .phone, .iPad, .mac, .macBook] {
+            XCTAssertFalse(kind.displayProfile.supports3D)
+            XCTAssertEqual(kind.displayProfile.rendering, .standard2D)
+        }
     }
 }

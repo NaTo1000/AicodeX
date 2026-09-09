@@ -18,6 +18,8 @@ ENTRYPOINT = ROOT / "docker" / "entrypoint.sh"
 PACKAGE = ROOT / "apple" / "Package.swift"
 APP_SWIFT = ROOT / "apple" / "Sources" / "AicodeXApp" / "AicodeXApp.swift"
 CONTENT_SWIFT = ROOT / "apple" / "Sources" / "AicodeXApp" / "ContentView.swift"
+CORE_DEVICE = ROOT / "apple" / "Sources" / "AicodeXCore" / "ClusterDevice.swift"
+CORE_CORE = ROOT / "apple" / "Sources" / "AicodeXCore" / "ClusterCore.swift"
 EXPORT_PLIST = ROOT / "apple" / "ExportOptions.plist"
 CREDS_MD = ROOT / "apple" / "APPLE_CREDENTIALS.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yaml"
@@ -117,6 +119,37 @@ class AppleBuildTests(unittest.TestCase):
         text = _read(CONTENT_SWIFT)
         self.assertIn("struct ContentView: View", text)
         self.assertIn("var body: some View", text)
+
+    def test_content_view_has_tabs_with_icons(self) -> None:
+        text = _read(CONTENT_SWIFT)
+        self.assertIn("TabView", text)
+        # One .tabItem per app tab, each bound to an AppTab icon.
+        self.assertGreaterEqual(text.count(".tabItem"), 4)
+        for tab in ("cluster", "devices", "display", "settings"):
+            self.assertIn(f"AppTab.{tab}", text)
+
+    def test_content_view_has_hd_3d_display(self) -> None:
+        text = _read(CONTENT_SWIFT)
+        self.assertIn("DeviceDisplayCard", text)
+        self.assertIn("supports3D", text)
+        self.assertIn("rotation3DEffect", text)
+        self.assertIn("hdLabel", text)
+
+    def test_core_covers_new_devices_and_display(self) -> None:
+        text = _read(CORE_DEVICE)
+        for case in ("macBook", "macBookPro", "arGlasses"):
+            self.assertIn(f"case {case}", text)
+        self.assertIn("struct DisplayProfile", text)
+        self.assertIn("supports3D", text)
+        # Device icons for the new kinds.
+        for icon in ("macbook.gen1", "macbook.gen2", "visionpro"):
+            self.assertIn(icon, text)
+
+    def test_core_defines_app_tabs(self) -> None:
+        text = _read(CORE_CORE)
+        self.assertIn("enum AppTab", text)
+        for tab in ("cluster", "devices", "display", "settings"):
+            self.assertIn(f"case {tab}", text)
 
     def test_export_options_plist(self) -> None:
         text = _read(EXPORT_PLIST)

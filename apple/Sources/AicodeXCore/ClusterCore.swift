@@ -42,3 +42,36 @@ public enum ClusterCore {
         return updated
     }
 }
+
+/// The top-level tabs of the SwiftUI app, each with its own SF Symbol icon.
+///
+/// Pure value type (no SwiftUI dependency) so it compiles and is testable on
+/// any platform; the SwiftUI shell turns these into `TabView` items.
+public enum AppTab: String, Codable, CaseIterable, Identifiable {
+    case cluster
+    case devices
+    case display
+    case settings
+
+    public var id: String { rawValue }
+
+    /// The tab's display title.
+    public var title: String {
+        switch self {
+        case .cluster:  return "Cluster"
+        case .devices:  return "Devices"
+        case .display:  return "Display"
+        case .settings: return "Settings"
+        }
+    }
+
+    /// The tab's SF Symbol icon.
+    public var systemImage: String {
+        switch self {
+        case .cluster:  return "point.3.connected.trianglepath.dotted"
+        case .devices:  return "rectangle.on.rectangle.angled"
+        case .display:  return "rectangle.3.group.fill"
+        case .settings: return "gearshape.fill"
+        }
+    }
+}
