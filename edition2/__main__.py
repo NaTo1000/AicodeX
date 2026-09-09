@@ -81,6 +81,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--style-fingerprint", metavar="CODE",
                         help="infer a style fingerprint from an inline code "
                              "sample and print it")
+    parser.add_argument("--prompts", action="store_true",
+                        help="list the six prompt registers and their "
+                             "algorithmically different digests")
+    parser.add_argument("--decipher-prompts", action="store_true",
+                        help="decipher all six prompt registers at the same "
+                             "time and reconcile by union")
     return parser
 
 
@@ -185,6 +191,17 @@ def main(argv: Optional[List[str]] = None) -> int:
         fp = db.learn([args.style_fingerprint])
         for key, value in fp.as_dict().items():
             print(f"{key}: {value}")
+        return 0
+
+    if args.prompts or args.decipher_prompts:
+        from .prompts import PromptRegistry
+        p_cfg = config.get("prompts", {}) if isinstance(config.get("prompts"), dict) else {}
+        registry = PromptRegistry(p_cfg.get("registers", {}))
+        registry.register()
+        if args.decipher_prompts:
+            print(registry.render_decipher(registry.decipher()))
+        else:
+            print(registry.render())
         return 0
 
     orchestration = config.get("orchestration", {})

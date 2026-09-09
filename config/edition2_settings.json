@@ -163,6 +163,17 @@
       "title": "AicodeX Community Forum"
     }
   },
+  "prompts": {
+    "description": "Six prompt registers, each committed under an algorithmically different digest; all six are deciphered simultaneously and reconciled by union so nothing is ever missed.",
+    "registers": {
+      "R1": { "role": "skeleton_architect", "prompt": "Design the skeleton structure and overall code-base architecture." },
+      "R2": { "role": "formation_planner", "prompt": "Set up the formation system, project scaffolding and TODO planning." },
+      "R3": { "role": "base_coder", "prompt": "Write the base code structure on top of the skeleton." },
+      "R4": { "role": "error_patcher", "prompt": "Run code-base error checks and apply patching refinements." },
+      "R5": { "role": "security_netops", "prompt": "Manage the security system, network topology and port-allocation structure." },
+      "R6": { "role": "spec_logger", "prompt": "Produce full-spec logging and advanced workflow mapping." }
+    }
+  },
   "crossover": {
     "description": "Database of crossover code & emulation mappings: how a construct in one language is emulated in another with precision accuracy and style notes.",
     "entries": {

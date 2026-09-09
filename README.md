@@ -157,6 +157,28 @@ python -m edition2 --style-fingerprint "$(cat mycode.py)"   # infer a style fing
 
 Seed crossover entries and the default style profile live in the `crossover` and `style` sections of `config/edition2_settings.json`.
 
+### Prompt Registers — Commit Differently, Decipher All at Once
+
+The **prompt registry** (`edition2/prompts.py`) holds the per-role working prompts in **six registers**, each committed under an **algorithmically different** digest so the commitments are structurally diverse:
+
+| Register | Digest algorithm | Role prompt (default seed) |
+|----------|------------------|----------------------------|
+| R1 | sha256 | `skeleton_architect` |
+| R2 | sha3_256 | `formation_planner` |
+| R3 | blake2s | `base_coder` |
+| R4 | blake2b | `error_patcher` |
+| R5 | sha512 | `security_netops` |
+| R6 | md5 | `spec_logger` |
+
+Registration commits every register; **decipherment runs all six at the same time** and reconciles by **set union**, so a prompt recovered by any register is **never missed**. A register whose prompt no longer matches its committed digest (tampered) or that lost its prompt (dropped) is reported instead of being silently skipped.
+
+```bash
+python -m edition2 --prompts           # list the six registers & their digests
+python -m edition2 --decipher-prompts  # decipher all six simultaneously (union)
+```
+
+Register seeds live in the `prompts` section of `config/edition2_settings.json`.
+
 ## AI Writers Integration
 
 AicodeX is integrated as the **internal overlayer for the AI writers** — it provides the shared overlay layer that AI writing tools use to surface hotkey-driven, in-context coding and writing assistance on top of any application.
