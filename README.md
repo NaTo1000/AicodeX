@@ -579,6 +579,24 @@ xcodebuild -exportArchive -archivePath build/AicodeX.xcarchive \
   -exportOptionsPlist ExportOptions.plist -exportPath build/export
 ```
 
+#### Xcode versions — stable, beta & developer
+
+The Swift CI job builds across an **Xcode channel matrix** so new toolchains are covered before they ship:
+
+| Channel | What it is | How CI selects it |
+|---------|------------|-------------------|
+| `stable` | The runner image's default Xcode | `xcodebuild -version` (no switch) |
+| `latest-beta` | The newest **Xcode beta** | [`RobotsAndPencils/xcodes-action`](https://github.com/RobotsAndPencils/xcodes-action) with `version: latest`, `include-prereleases: true` |
+| `developer` | The newest **developer/seed** Xcode | the same action with `version: latest-prerelease` |
+
+To reproduce a channel locally, install [`xcodes`](https://github.com/XcodesOrg/xcodes) and select the toolchain:
+
+```bash
+xcodes install --latest-beta            # or: xcodes install --latest-prerelease
+sudo xcode-select -s /Applications/Xcode-beta.app
+xcodebuild -version                     # confirm the beta/developer build
+```
+
 ### CI/CD Workflows
 
 Two GitHub Actions workflows provide linted, approved build states across all fields:

@@ -20,6 +20,7 @@ APP_SWIFT = ROOT / "apple" / "Sources" / "AicodeXApp" / "AicodeXApp.swift"
 CONTENT_SWIFT = ROOT / "apple" / "Sources" / "AicodeXApp" / "ContentView.swift"
 EXPORT_PLIST = ROOT / "apple" / "ExportOptions.plist"
 CREDS_MD = ROOT / "apple" / "APPLE_CREDENTIALS.md"
+CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yaml"
 
 # Simple secret-shaped patterns that must never appear in build files.
 SECRET_PATTERNS = [
@@ -134,6 +135,30 @@ class AppleBuildTests(unittest.TestCase):
             for pattern in SECRET_PATTERNS:
                 self.assertIsNone(pattern.search(text),
                                   f"possible secret in {path.name}")
+
+
+class XcodeVersionChannelTests(unittest.TestCase):
+    """The Swift CI job must cover stable, beta, and developer Xcode builds."""
+
+    def setUp(self) -> None:
+        self.text = _read(CI_WORKFLOW)
+
+    def test_xcode_matrix_channels(self) -> None:
+        for channel in ("stable", "latest-beta", "developer"):
+            self.assertIn(channel, self.text,
+                          f"Xcode channel '{channel}' missing from CI matrix")
+
+    def test_beta_channels_use_xcodes_action(self) -> None:
+        self.assertIn("RobotsAndPencils/xcodes-action", self.text)
+        self.assertIn("include-prereleases: true", self.text)
+        self.assertIn("latest-prerelease", self.text)
+
+    def test_credentials_doc_covers_beta_xcode(self) -> None:
+        text = _read(CREDS_MD)
+        self.assertIn("Xcode beta & developer versions", text)
+        self.assertIn("--latest-beta", text)
+        # App Store uploads must still come from a release Xcode.
+        self.assertIn("non-beta", text)
 
 
 if __name__ == "__main__":

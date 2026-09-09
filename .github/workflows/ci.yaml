@@ -87,12 +87,40 @@ jobs:
           docker buildx bake -f docker/docker-bake.hcl --print default
 
   # -------------------------------------------------------------------------
-  # Swift: build the SwiftUI package. Runs on macOS; SwiftLint when available.
+  # Swift: build the SwiftUI package. Runs on macOS across an Xcode channel
+  # matrix — the runner's stable default, the latest beta, and the latest
+  # developer (seed) build — so beta/developer toolchains are covered before
+  # they ship. SwiftLint runs when available.
   # -------------------------------------------------------------------------
   swift:
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # stable: the runner image's default Xcode.
+        # latest-beta: newest Xcode beta via RobotsAndPencils/xcodes.
+        # developer: newest developer/seed Xcode via xcodes --latest-prerelease.
+        xcode: [stable, latest-beta, developer]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Select stable Xcode (runner default)
+        if: matrix.xcode == 'stable'
+        run: xcodebuild -version
+
+      - name: Install latest Xcode beta
+        if: matrix.xcode == 'latest-beta'
+        uses: RobotsAndPencils/xcodes-action@v1
+        with:
+          version: latest
+          include-prereleases: true
+
+      - name: Install latest developer Xcode
+        if: matrix.xcode == 'developer'
+        uses: RobotsAndPencils/xcodes-action@v1
+        with:
+          version: latest-prerelease
+          include-prereleases: true
 
       - name: SwiftLint (when available)
         run: |

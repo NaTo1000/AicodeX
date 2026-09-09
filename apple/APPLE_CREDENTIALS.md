@@ -43,3 +43,22 @@ xcodebuild -scheme AicodeXApp -archivePath build/AicodeX.xcarchive archive
 xcodebuild -exportArchive -archivePath build/AicodeX.xcarchive \
   -exportOptionsPlist ExportOptions.plist -exportPath build/export
 ```
+
+## Xcode beta & developer versions
+
+CI builds the Swift package across three Xcode channels — **stable** (runner
+default), **latest-beta**, and the latest **developer/seed** build (via
+[`RobotsAndPencils/xcodes-action`](https://github.com/RobotsAndPencils/xcodes-action)).
+To work against a beta or developer Xcode locally:
+
+```bash
+# Install the newest beta (or: xcodes install --latest-prerelease)
+xcodes install --latest-beta
+sudo xcode-select -s /Applications/Xcode-beta.app
+xcodebuild -version         # confirm the beta/developer toolchain
+```
+
+Credentials are identical across channels — point the same keychain/CI
+secrets at whichever Xcode is selected. Note: **App Store uploads still
+require a release (non-beta) Xcode**; use the beta/developer channels for
+development and pre-release validation only.
