@@ -17,6 +17,11 @@ final class AppViewModel: ObservableObject {
     private let store: SettingsStore
     private(set) var library: SnippetLibrary
     private let handbrake = HandBrakeChecker()
+    private let analyzer = IncomingDataAnalyzer()
+    private var matcher = SolutionMatcher()
+
+    /// The assistant persona driving the UI's presentation style.
+    @Published private(set) var persona: PersonaStyle = .default
 
     init(store: SettingsStore) {
         self.store = store
@@ -63,6 +68,28 @@ final class AppViewModel: ObservableObject {
         case .refactorSelection:
             statusMessage = "Refactor action"
         }
+    }
+
+    // MARK: - Assistant (Persona & Analysis)
+
+    /// Analyse incoming text, match a performance solution (or explain why none
+    /// fits), and surface the result as a status message. Returns the match so
+    /// an Assistant view can render the full explanation.
+    @discardableResult
+    func analyzeIncoming(_ text: String) -> SolutionMatch {
+        let profile = analyzer.analyze(text)
+        let match = matcher.match(profile)
+        if match.matched {
+            statusMessage = "Solution: \(match.solution)"
+        } else {
+            statusMessage = "No solution: \(match.explanation)"
+        }
+        return match
+    }
+
+    /// Fine-tune the assistant/UI persona style.
+    func fineTunePersona(name: String? = nil, tone: String? = nil, traits: [String: Double] = [:]) {
+        persona = persona.merging(name: name, tone: tone, traits: traits)
     }
 
     // MARK: - Settings

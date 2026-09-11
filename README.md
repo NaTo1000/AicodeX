@@ -29,6 +29,38 @@
 - 🎨 **Highly Customizable** - Configure hotkeys, appearance, and behavior
 - 🔧 **HandBrake Integration** - Check and download the latest HandBrake version
 - 🖥️ **Windows Optimized** - Built specifically for Windows development workflows
+- 🧠 **Assistant Persona & Analysis Engine** - Profiles incoming data against graphical personality types and matches complete performance solutions, explaining itself when none fit
+
+## Assistant Persona & Analysis Engine
+
+AicodeX includes a self-contained, dependency-free engine that fine-tunes the
+assistant and UI persona style and analyzes incoming data:
+
+1. **Persona style** (`persona.py`) — a configurable tone/personality profile
+   expressed over graphical trait axes (`analytical`, `creative`, `driver`,
+   `amiable`). Fine-tuning is just loading/merging the `assistant.persona`
+   config block; the same model drives the UI's presentation.
+2. **Analysis** (`analyzer.py`) — `IncomingDataAnalyzer` scores incoming
+   text/data into a trait profile plus a confidence value.
+3. **Solutions** (`solutions.py`) — `SolutionMatcher` maps a profile to a
+   complete performance solution from the `assistant.knowledge_base`. When no
+   entry fits, it **explains why** (unmet traits / insufficient confidence)
+   instead of failing silently.
+4. **TWINBRAIN** (`twinbrain.py`) — a dual-hemisphere reasoner that proposes
+   analytic (left) and associative (right) candidate pathways.
+5. **CCC.Ai — Corpus Callosum Council** (`council.py`) — deliberates between
+   the twin-brain candidates and makes a rational, truth-justified decision
+   gated by evidence and confidence.
+6. **PEC routing + retention** (`router.py`) — a term-control system spreads the
+   question through the engine's channels and records the query/decision/return
+   in a retention store, so future decisions are justified by retained history.
+
+The whole pipeline is orchestrated by `AssistantEngine` (`engine.py`) and is
+exposed in the overlay's **Assistant** tab. Configure it under the `assistant`
+block of `config/default_settings.json` (persona profile, `trait_axes`,
+`knowledge_base`, `retention`, and `council` gates). The Apple core ports the
+persona/analyzer/matcher to pure Foundation in
+`apple/Sources/AicodeXCore/` (`AssistantPersona.swift`, `AssistantAnalysis.swift`).
 
 ## Installation
 
