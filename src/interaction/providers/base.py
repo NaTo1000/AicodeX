@@ -74,7 +74,9 @@ class ModelProvider:
         self.enabled = bool(enabled)
         self.timeout = float(timeout)
         self._transport = transport or default_transport
-        self._environ = environ if environ is not None else os.environ
+        # Resolve secrets on demand from this env mapping; the key *value* is
+        # never stored on the instance (only the mapping / var name is kept).
+        self._env_getter = (environ.get if environ is not None else os.environ.get)
 
     # -- secrets -----------------------------------------------------------
     def api_key(self) -> Optional[str]:
@@ -85,7 +87,7 @@ class ModelProvider:
         """
         if not self.api_key_env:
             return None
-        return self._environ.get(self.api_key_env)
+        return self._env_getter(self.api_key_env)
 
     def is_configured(self) -> bool:
         """True when the provider is enabled and has a usable key (if required)."""

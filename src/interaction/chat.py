@@ -70,6 +70,11 @@ class ChatSession:
             overrides["tone"] = self.adjustments["tone"]
         self.engine = self.engine.fine_tune(overrides)
 
+    @property
+    def persona(self):
+        """The session's current (possibly re-tuned) persona."""
+        return self.engine.persona
+
     def history(self) -> List[Dict[str, object]]:
         return [m.as_dict() for m in self.messages]
 
@@ -145,9 +150,10 @@ class InterludeManager:
         interlude.open = False
         applied = ""
         if apply and (interlude.trait_overrides or interlude.tone_override):
+            # Pass tone only when set so trait-only adjustments aren't dropped.
             self.session.apply_adjustment(
                 traits=interlude.trait_overrides or None,
-                tone=interlude.tone_override,
+                tone=interlude.tone_override if interlude.tone_override else None,
             )
             applied = " (adjustments applied)"
         self.current = None

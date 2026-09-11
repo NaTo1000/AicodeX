@@ -23,6 +23,20 @@ final class AppViewModel: ObservableObject {
     /// The assistant persona driving the UI's presentation style.
     @Published private(set) var persona: PersonaStyle = .default
 
+    /// Voice command parser (typed text stands in for speech on all platforms).
+    private(set) lazy var commandParser = CommandParser()
+    /// Chat session with interlude support, routed through the analyzer/matcher.
+    private(set) lazy var chat: ChatSession = {
+        ChatSession { [analyzer, matcher] text in
+            let profile = analyzer.analyze(text)
+            let match = matcher.match(profile)
+            return match.matched ? "Solution: \(match.solution)" : "No solution: \(match.explanation)"
+        }
+    }()
+    private(set) lazy var interludes = InterludeManager(session: chat)
+    /// Offline-first model provider resolution (mock fallback when unconfigured).
+    private(set) var providers = ProviderRegistry()
+
     init(store: SettingsStore) {
         self.store = store
         self.settings = store.settings
@@ -90,6 +104,39 @@ final class AppViewModel: ObservableObject {
     /// Fine-tune the assistant/UI persona style.
     func fineTunePersona(name: String? = nil, tone: String? = nil, traits: [String: Double] = [:]) {
         persona = persona.merging(name: name, tone: tone, traits: traits)
+    }
+
+    // MARK: - Voice & Chat
+
+    /// Handle a raw voice utterance (typed text stands in for speech input).
+    /// Returns a human-readable response and reflects it in the status message.
+    @discardableResult
+    func handleVoice(_ utterance: String) -> String {
+        let command = commandParser.parse(utterance)
+        let response: String
+        switch command.intent {
+        case .analyze:
+            response = chat.sendUser(command.argument.isEmpty ? "analyze this" : command.argument)
+        case .interlude:
+            interludes.start(topic: command.argument.isEmpty ? "brainstorm" : command.argument)
+            response = "Interlude started: \(command.argument)"
+        case .stopInterlude:
+            response = interludes.end()
+        case .help:
+            response = "I can analyze <text>, brainstorm in an interlude, and more."
+        default:
+            response = "Sorry, the '\(command.intent.rawValue)' command isn't available here yet."
+        }
+        statusMessage = response
+        return response
+    }
+
+    /// Send a chat message through the assistant pipeline.
+    @discardableResult
+    func sendChat(_ text: String) -> String {
+        let reply = chat.sendUser(text)
+        statusMessage = reply
+        return reply
     }
 
     // MARK: - Settings

@@ -30,6 +30,45 @@
 - 🔧 **HandBrake Integration** - Check and download the latest HandBrake version
 - 🖥️ **Windows Optimized** - Built specifically for Windows development workflows
 - 🧠 **Assistant Persona & Analysis Engine** - Profiles incoming data against graphical personality types and matches complete performance solutions, explaining itself when none fit
+- 🎙️ **Voice Commands & Chat** - Full voice-command framework plus chat with mid-code "interlude" brainstorming and modelling adjustments
+- 🧪 **Sandbox Snippet Preview** - Safely run and preview small code snippets with timeouts and bounded output
+- 🔌 **Pluggable AI Models** - Adapters for Hugging Face, Northflank, BentoML, Replicate, Modal, Lambda Labs, Together AI, and RunPod
+
+## Voice, Chat, Sandbox & AI Providers
+
+Building on the Assistant Engine, AicodeX adds an interaction subsystem
+(`src/interaction/`) that is dependency-free and offline-capable:
+
+- **Voice commands** (`voice.py`) — a `CommandParser` turns an utterance into a
+  structured intent (`analyze`, `preview`, `insert_snippet`, `interlude`,
+  `stop_interlude`, `format`, `toggle_overlay`, `help`), and a
+  `VoiceCommandProcessor` executes it against overlay/engine hooks. Speech I/O
+  is abstracted behind the `SpeechEngine` protocol; the bundled
+  `DictSpeechEngine` is deterministic for tests, so a real STT/TTS engine can
+  be plugged in without touching the logic.
+- **Chat + interludes** (`chat.py`) — a `ChatSession` routes messages through
+  the assistant engine, and an `InterludeManager` pauses a coding flow for
+  mid-code brainstorming, capturing **modelling adjustments** (persona trait /
+  tone overrides) that are applied when the interlude ends.
+- **Sandbox preview** (`sandbox.py`) — `SnippetSandbox` runs a small Python
+  snippet with a wall-clock timeout, blocked dangerous builtins/imports, and
+  bounded output, returning a structured `ExecutionResult` for UI preview.
+- **Pluggable AI providers** (`providers/`) — a `ModelProvider` base with an
+  injectable HTTP transport (no real network calls in tests), a registry, and
+  thin adapters for Hugging Face, Northflank, BentoML, Replicate, Modal, Lambda
+  Labs, Together AI, and RunPod, plus an offline `MockProvider` fallback. API
+  keys are referenced by environment-variable **name** only and are never
+  persisted or committed.
+
+The overlay's **Voice & Chat** tab ties these together (chat log + input, and
+Voice Command / Interlude / Preview buttons) via `InteractionController`,
+built from the `interaction` block of `config/default_settings.json` (voice
+wake-word, chat history, sandbox limits, and the `providers` list). The Apple
+core ports the voice parser, chat/interlude, and provider registry to pure
+Foundation (`VoiceCommands.swift`, `AssistantChat.swift`, `ModelProviders.swift`).
+
+> **Secrets:** set provider keys as environment variables (e.g.
+> `TOGETHER_API_KEY`, `HUGGINGFACE_API_KEY`). Never put keys in config or code.
 
 ## Assistant Persona & Analysis Engine
 

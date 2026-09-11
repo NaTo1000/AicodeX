@@ -32,6 +32,7 @@ class InteractionController:
     ) -> None:
         self.engine = engine
         self.session = session or ChatSession(engine)
+        self.session.engine = engine
         self.interludes = interludes or InterludeManager(self.session)
         self.sandbox = sandbox or SnippetSandbox()
         self.voice = voice or VoiceCommandProcessor(CommandParser(), DictSpeechEngine())
@@ -77,6 +78,11 @@ class InteractionController:
         providers = ProviderManager(registry)
 
         return cls(engine, session, interludes, sandbox, voice, providers)
+
+    @property
+    def persona(self):
+        """The controller's current persona (reflects any interlude re-tune)."""
+        return self.session.engine.persona
 
     # -- voice -------------------------------------------------------------
     def _wire_voice_hooks(self) -> None:
