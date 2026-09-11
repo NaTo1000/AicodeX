@@ -7,6 +7,8 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import platform
 
+from assistant import AssistantEngine
+
 
 class OverlayWindow:
     """Main overlay window for AicodeX"""
@@ -15,6 +17,7 @@ class OverlayWindow:
         """Initialize the overlay window"""
         self.config = config
         self.hotkey_manager = hotkey_manager
+        self.assistant_engine = AssistantEngine.from_config(config.settings)
         self.root = tk.Tk()
         self.visible = True
         self.setup_window()
@@ -75,6 +78,11 @@ class OverlayWindow:
         actions_frame = ttk.Frame(notebook, padding="5")
         notebook.add(actions_frame, text="Actions")
         self.create_actions_tab(actions_frame)
+        
+        # Assistant (persona & analysis) tab
+        assistant_frame = ttk.Frame(notebook, padding="5")
+        notebook.add(assistant_frame, text="Assistant")
+        self.create_assistant_tab(assistant_frame)
         
         # Settings tab
         settings_frame = ttk.Frame(notebook, padding="5")
@@ -137,6 +145,57 @@ class OverlayWindow:
             btn = ttk.Button(actions_frame, text=action_name, command=action_func)
             btn.pack(fill=tk.X, pady=2)
             
+    def create_assistant_tab(self, parent):
+        """Create the Assistant Persona & Analysis tab"""
+        frame = ttk.Frame(parent)
+        frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        persona = self.assistant_engine.persona
+        ttk.Label(
+            frame,
+            text=f"Assistant: {persona.name} (tone: {persona.tone})",
+            font=("Arial", 10, "bold"),
+        ).pack(anchor=tk.W, pady=(0, 5))
+
+        # Persona trait (graphical personality) read-out
+        traits = ", ".join(
+            f"{axis}={value:.2f}" for axis, value in persona.dominant_traits()
+        ) or "none"
+        ttk.Label(frame, text=f"Persona traits: {traits}", wraplength=360).pack(
+            anchor=tk.W, pady=(0, 8)
+        )
+
+        ttk.Label(frame, text="Ask the assistant:").pack(anchor=tk.W)
+        self.assistant_input = ttk.Entry(frame)
+        self.assistant_input.pack(fill=tk.X, pady=(2, 4))
+        self.assistant_input.bind("<Return>", lambda _e: self.run_assistant())
+
+        ttk.Button(frame, text="Analyze", command=self.run_assistant).pack(
+            fill=tk.X, pady=(0, 6)
+        )
+
+        self.assistant_output = scrolledtext.ScrolledText(frame, height=14, wrap=tk.WORD)
+        self.assistant_output.pack(fill=tk.BOTH, expand=True)
+        self.assistant_output.insert(
+            tk.END,
+            "Type a question and press Analyze. The engine will profile the "
+            "incoming data against graphical personality types, match a "
+            "performance solution (or explain why none fits), and show the "
+            "TWINBRAIN + CCC.Ai council's justified decision.",
+        )
+        self.assistant_output.config(state=tk.DISABLED)
+
+    def run_assistant(self):
+        """Analyze the input and render the assistant report."""
+        question = self.assistant_input.get().strip()
+        if not question:
+            return
+        report = self.assistant_engine.process(question)
+        self.assistant_output.config(state=tk.NORMAL)
+        self.assistant_output.delete("1.0", tk.END)
+        self.assistant_output.insert(tk.END, report.summary())
+        self.assistant_output.config(state=tk.DISABLED)
+
     def create_settings_tab(self, parent):
         """Create the settings tab"""
         settings_frame = ttk.Frame(parent)

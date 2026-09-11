@@ -38,5 +38,52 @@
     "handbrake_integration": true,
     "auto_format": true,
     "snippet_suggestions": true
+  },
+  "assistant": {
+    "persona": {
+      "name": "AicodeX Assistant",
+      "tone": "analytical",
+      "traits": {
+        "analytical": 0.9,
+        "creative": 0.4,
+        "driver": 0.6,
+        "amiable": 0.7
+      }
+    },
+    "trait_axes": ["analytical", "creative", "driver", "amiable"],
+    "knowledge_base": [
+      {
+        "id": "perf-analytical",
+        "solution": "Profile the hot path, add benchmark coverage, then optimize the dominant cost centre with measurable before/after metrics.",
+        "traits": {"analytical": 0.7, "driver": 0.4},
+        "min_confidence": 0.5
+      },
+      {
+        "id": "perf-creative",
+        "solution": "Prototype two alternative designs, spike the riskiest assumption, and pick the design that best satisfies the constraints.",
+        "traits": {"creative": 0.7, "analytical": 0.3},
+        "min_confidence": 0.5
+      },
+      {
+        "id": "perf-driver",
+        "solution": "Cut scope to the critical path, time-box a decision, and ship the smallest change that moves the key metric.",
+        "traits": {"driver": 0.7},
+        "min_confidence": 0.45
+      },
+      {
+        "id": "perf-amiable",
+        "solution": "Align stakeholders on the goal, gather requirements, and pair on a solution that the team can maintain together.",
+        "traits": {"amiable": 0.7},
+        "min_confidence": 0.45
+      }
+    ],
+    "retention": {
+      "enabled": true,
+      "max_records": 200
+    },
+    "council": {
+      "min_confidence": 0.5,
+      "min_justification": 0.4
+    }
   }
 }
