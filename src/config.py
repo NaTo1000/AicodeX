@@ -69,6 +69,30 @@ def default_assistant_settings():
     }
 
 
+def default_interaction_settings():
+    """Default interaction (voice / chat / sandbox / providers) configuration.
+
+    Mirrors the ``interaction`` block in ``config/default_settings.json``.
+    Provider API keys are referenced by environment-variable *name* only —
+    never literal secrets.
+    """
+    return {
+        "voice": {"enabled": True, "wake_word": "aicodex", "command_prefix": ""},
+        "chat": {"system_persona_tone": "analytical", "max_history": 100},
+        "sandbox": {"enabled": True, "timeout_seconds": 5, "max_output_chars": 4000},
+        "providers": [
+            {"name": "huggingface", "kind": "huggingface", "endpoint": "https://api-inference.huggingface.co/models", "api_key_env": "HUGGINGFACE_API_KEY", "enabled": True},
+            {"name": "northflank", "kind": "northflank", "endpoint": "https://api.northflank.com/v1", "api_key_env": "NORTHFLANK_API_KEY", "enabled": False},
+            {"name": "bentoml", "kind": "bentoml", "endpoint": "http://localhost:3000", "api_key_env": "BENTOML_API_KEY", "enabled": False},
+            {"name": "replicate", "kind": "replicate", "endpoint": "https://api.replicate.com/v1", "api_key_env": "REPLICATE_API_TOKEN", "enabled": False},
+            {"name": "modal", "kind": "modal", "endpoint": "https://api.modal.com/v1", "api_key_env": "MODAL_TOKEN", "enabled": False},
+            {"name": "lambdalabs", "kind": "lambdalabs", "endpoint": "https://api.lambdalabs.com/v1", "api_key_env": "LAMBDA_API_KEY", "enabled": False},
+            {"name": "together", "kind": "together", "endpoint": "https://api.together.xyz/v1", "api_key_env": "TOGETHER_API_KEY", "enabled": True},
+            {"name": "runpod", "kind": "runpod", "endpoint": "https://api.runpod.io/v2", "api_key_env": "RUNPOD_API_KEY", "enabled": False},
+        ],
+    }
+
+
 class Config:
     """Configuration manager for AicodeX"""
     
@@ -146,5 +170,6 @@ class Config:
                 "auto_format": True,
                 "snippet_suggestions": True
             },
-            "assistant": default_assistant_settings()
+            "assistant": default_assistant_settings(),
+            "interaction": default_interaction_settings()
         }
