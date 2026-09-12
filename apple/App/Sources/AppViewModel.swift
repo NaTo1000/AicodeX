@@ -17,6 +17,27 @@ final class AppViewModel: ObservableObject {
     private let store: SettingsStore
     private(set) var library: SnippetLibrary
     private let handbrake = HandBrakeChecker()
+    private let analyzer = IncomingDataAnalyzer()
+    private var matcher = SolutionMatcher()
+
+    /// The assistant persona driving the UI's presentation style.
+    @Published private(set) var persona: PersonaStyle = .default
+
+    /// Voice command parser (typed text stands in for speech on all platforms).
+    private(set) lazy var commandParser = CommandParser()
+    /// Chat session with interlude support, routed through the analyzer/matcher.
+    private(set) lazy var chat: ChatSession = {
+        ChatSession { [analyzer, matcher] text in
+            let profile = analyzer.analyze(text)
+            let match = matcher.match(profile)
+            return match.matched ? "Solution: \(match.solution)" : "No solution: \(match.explanation)"
+        }
+    }()
+    private(set) lazy var interludes = InterludeManager(session: chat)
+    /// Offline-first model provider resolution (mock fallback when unconfigured).
+    private(set) var providers = ProviderRegistry()
+    /// HiAi code predictor (language/variant/format/algorithm from a snippet).
+    private let predictor = CodePredictor()
 
     init(store: SettingsStore) {
         self.store = store
@@ -63,6 +84,69 @@ final class AppViewModel: ObservableObject {
         case .refactorSelection:
             statusMessage = "Refactor action"
         }
+    }
+
+    // MARK: - Assistant (Persona & Analysis)
+
+    /// Analyse incoming text, match a performance solution (or explain why none
+    /// fits), and surface the result as a status message. Returns the match so
+    /// an Assistant view can render the full explanation.
+    @discardableResult
+    func analyzeIncoming(_ text: String) -> SolutionMatch {
+        let profile = analyzer.analyze(text)
+        let match = matcher.match(profile)
+        if match.matched {
+            statusMessage = "Solution: \(match.solution)"
+        } else {
+            statusMessage = "No solution: \(match.explanation)"
+        }
+        return match
+    }
+
+    /// Fine-tune the assistant/UI persona style.
+    func fineTunePersona(name: String? = nil, tone: String? = nil, traits: [String: Double] = [:]) {
+        persona = persona.merging(name: name, tone: tone, traits: traits)
+    }
+
+    // MARK: - Voice & Chat
+
+    /// Handle a raw voice utterance (typed text stands in for speech input).
+    /// Returns a human-readable response and reflects it in the status message.
+    @discardableResult
+    func handleVoice(_ utterance: String) -> String {
+        let command = commandParser.parse(utterance)
+        let response: String
+        switch command.intent {
+        case .analyze:
+            response = chat.sendUser(command.argument.isEmpty ? "analyze this" : command.argument)
+        case .interlude:
+            interludes.start(topic: command.argument.isEmpty ? "brainstorm" : command.argument)
+            response = "Interlude started: \(command.argument)"
+        case .stopInterlude:
+            response = interludes.end()
+        case .help:
+            response = "I can analyze <text>, brainstorm in an interlude, and more."
+        default:
+            response = "Sorry, the '\(command.intent.rawValue)' command isn't available here yet."
+        }
+        statusMessage = response
+        return response
+    }
+
+    /// Send a chat message through the assistant pipeline.
+    @discardableResult
+    func sendChat(_ text: String) -> String {
+        let reply = chat.sendUser(text)
+        statusMessage = reply
+        return reply
+    }
+
+    /// Predict a submitted snippet's language/variant/format/algorithm (HiAi).
+    @discardableResult
+    func predictCode(_ code: String, filename: String? = nil) -> CodePrediction {
+        let prediction = predictor.predict(code, filename: filename)
+        statusMessage = "Predicted: \(prediction.language) (\(prediction.variant)) / \(prediction.format)"
+        return prediction
     }
 
     // MARK: - Settings

@@ -38,5 +38,88 @@
     "handbrake_integration": true,
     "auto_format": true,
     "snippet_suggestions": true
+  },
+  "assistant": {
+    "persona": {
+      "name": "AicodeX Assistant",
+      "tone": "analytical",
+      "traits": {
+        "analytical": 0.9,
+        "creative": 0.4,
+        "driver": 0.6,
+        "amiable": 0.7
+      }
+    },
+    "trait_axes": ["analytical", "creative", "driver", "amiable"],
+    "knowledge_base": [
+      {
+        "id": "perf-analytical",
+        "solution": "Profile the hot path, add benchmark coverage, then optimize the dominant cost centre with measurable before/after metrics.",
+        "traits": {"analytical": 0.7, "driver": 0.4},
+        "min_confidence": 0.5
+      },
+      {
+        "id": "perf-creative",
+        "solution": "Prototype two alternative designs, spike the riskiest assumption, and pick the design that best satisfies the constraints.",
+        "traits": {"creative": 0.7, "analytical": 0.3},
+        "min_confidence": 0.5
+      },
+      {
+        "id": "perf-driver",
+        "solution": "Cut scope to the critical path, time-box a decision, and ship the smallest change that moves the key metric.",
+        "traits": {"driver": 0.7},
+        "min_confidence": 0.45
+      },
+      {
+        "id": "perf-amiable",
+        "solution": "Align stakeholders on the goal, gather requirements, and pair on a solution that the team can maintain together.",
+        "traits": {"amiable": 0.7},
+        "min_confidence": 0.45
+      }
+    ],
+    "retention": {
+      "enabled": true,
+      "max_records": 200
+    },
+    "council": {
+      "min_confidence": 0.5,
+      "min_justification": 0.4
+    }
+  },
+  "interaction": {
+    "voice": {
+      "enabled": true,
+      "wake_word": "aicodex",
+      "command_prefix": ""
+    },
+    "chat": {
+      "system_persona_tone": "analytical",
+      "max_history": 100
+    },
+    "sandbox": {
+      "enabled": true,
+      "timeout_seconds": 5,
+      "max_output_chars": 4000
+    },
+    "providers": [
+      {"name": "huggingface", "kind": "huggingface", "endpoint": "https://api-inference.huggingface.co/models", "api_key_env": "HUGGINGFACE_API_KEY", "enabled": true},
+      {"name": "northflank", "kind": "northflank", "endpoint": "https://api.northflank.com/v1", "api_key_env": "NORTHFLANK_API_KEY", "enabled": false},
+      {"name": "bentoml", "kind": "bentoml", "endpoint": "http://localhost:3000", "api_key_env": "BENTOML_API_KEY", "enabled": false},
+      {"name": "replicate", "kind": "replicate", "endpoint": "https://api.replicate.com/v1", "api_key_env": "REPLICATE_API_TOKEN", "enabled": false},
+      {"name": "modal", "kind": "modal", "endpoint": "https://api.modal.com/v1", "api_key_env": "MODAL_TOKEN", "enabled": false},
+      {"name": "lambdalabs", "kind": "lambdalabs", "endpoint": "https://api.lambdalabs.com/v1", "api_key_env": "LAMBDA_API_KEY", "enabled": false},
+      {"name": "together", "kind": "together", "endpoint": "https://api.together.xyz/v1", "api_key_env": "TOGETHER_API_KEY", "enabled": true},
+      {"name": "runpod", "kind": "runpod", "endpoint": "https://api.runpod.io/v2", "api_key_env": "RUNPOD_API_KEY", "enabled": false},
+      {"name": "grok4", "kind": "grok4", "endpoint": "https://api.x.ai/v1", "api_key_env": "XAI_API_KEY", "enabled": false},
+      {"name": "openrouter", "kind": "openrouter", "endpoint": "https://openrouter.ai/api/v1", "api_key_env": "OPENROUTER_API_KEY", "enabled": false},
+      {"name": "gemini", "kind": "gemini", "endpoint": "https://generativelanguage.googleapis.com/v1beta", "api_key_env": "GEMINI_API_KEY", "enabled": false},
+      {"name": "chatgptcodex", "kind": "chatgptcodex", "endpoint": "https://api.openai.com/v1", "api_key_env": "OPENAI_API_KEY", "enabled": false},
+      {"name": "chatgpt6luna", "kind": "chatgpt6luna", "endpoint": "https://api.openai.com/v1", "api_key_env": "OPENAI_API_KEY", "enabled": false},
+      {"name": "claudecoder", "kind": "claudecoder", "endpoint": "https://api.anthropic.com/v1", "api_key_env": "ANTHROPIC_API_KEY", "enabled": false},
+      {"name": "codex", "kind": "codex", "endpoint": "https://api.openai.com/v1", "api_key_env": "OPENAI_API_KEY", "enabled": false},
+      {"name": "minstrel", "kind": "minstrel", "endpoint": "https://api.minstrel.example/v1", "api_key_env": "MINSTREL_API_KEY", "enabled": false},
+      {"name": "kodex", "kind": "kodex", "endpoint": "https://api.kodex.example/v1", "api_key_env": "KODEX_API_KEY", "enabled": false},
+      {"name": "xcode", "kind": "xcode", "endpoint": "https://api.xcode.example/v1", "api_key_env": "XCODE_API_KEY", "enabled": false}
+    ]
   }
 }

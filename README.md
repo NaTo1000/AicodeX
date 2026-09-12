@@ -29,6 +29,106 @@
 - 🎨 **Highly Customizable** - Configure hotkeys, appearance, and behavior
 - 🔧 **HandBrake Integration** - Check and download the latest HandBrake version
 - 🖥️ **Windows Optimized** - Built specifically for Windows development workflows
+- 🧠 **Assistant Persona & Analysis Engine** - Profiles incoming data against graphical personality types and matches complete performance solutions, explaining itself when none fit
+- 🎙️ **Voice Commands & Chat** - Full voice-command framework plus chat with mid-code "interlude" brainstorming and modelling adjustments
+- 🧪 **Sandbox Snippet Preview** - Safely run and preview small code snippets with timeouts and bounded output
+- 🔌 **Pluggable AI Models** - Adapters for Hugging Face, Northflank, BentoML, Replicate, Modal, Lambda Labs, Together AI, RunPod, Grok-4, OpenRouter, Gemini, ChatGPT Codex, ChatGPT-6 Luna, Claude, Codex, Minstrel, Kodex, and Xcode
+- 🌐 **Languages & Formats** - A catalog of world programming languages, their code variants, and interchange formats
+- 🔮 **HiAi + PECs Code Prediction** - Predicts a submitted snippet's language, algorithmic family, and format from the code and your style
+
+## Voice, Chat, Sandbox & AI Providers
+
+Building on the Assistant Engine, AicodeX adds an interaction subsystem
+(`src/interaction/`) that is dependency-free and offline-capable:
+
+- **Voice commands** (`voice.py`) — a `CommandParser` turns an utterance into a
+  structured intent (`analyze`, `preview`, `insert_snippet`, `interlude`,
+  `stop_interlude`, `format`, `toggle_overlay`, `help`), and a
+  `VoiceCommandProcessor` executes it against overlay/engine hooks. Speech I/O
+  is abstracted behind the `SpeechEngine` protocol; the bundled
+  `DictSpeechEngine` is deterministic for tests, so a real STT/TTS engine can
+  be plugged in without touching the logic.
+- **Chat + interludes** (`chat.py`) — a `ChatSession` routes messages through
+  the assistant engine, and an `InterludeManager` pauses a coding flow for
+  mid-code brainstorming, capturing **modelling adjustments** (persona trait /
+  tone overrides) that are applied when the interlude ends.
+- **Sandbox preview** (`sandbox.py`) — `SnippetSandbox` runs a small Python
+  snippet with a wall-clock timeout, blocked dangerous builtins/imports, and
+  bounded output, returning a structured `ExecutionResult` for UI preview.
+- **Pluggable AI providers** (`providers/`) — a `ModelProvider` base with an
+  injectable HTTP transport (no real network calls in tests), a registry, and
+  thin adapters for Hugging Face, Northflank, BentoML, Replicate, Modal, Lambda
+  Labs, Together AI, RunPod, **Grok-4** (xAI), **OpenRouter**, **Gemini**,
+  **ChatGPT Codex**, **ChatGPT-6 Luna**, **Claude (decoder)**, **Codex**,
+  **Minstrel** (vibe coder), **Kodex**, and **Xcode**, plus an offline
+  `MockProvider` fallback. Most hosted services share an OpenAI-compatible
+  chat-completions shape, so they reuse a common adapter and differ only by
+  endpoint/model; Gemini uses its own `generateContent` shape. API keys are
+  referenced by environment-variable **name** only and are never persisted.
+
+### Languages, Variants, Formats & Code Prediction (HiAi + PECs)
+
+- **Languages & formats** (`languages.py`) — a declarative `LanguageCatalog` of
+  ~25 world programming/markup languages, each with its **code variants** (e.g.
+  Swift: `swiftui`/`uikit`/`swift5`/`swift6`; SQL: `postgres`/`mysql`/`sqlite`/
+  `tsql`) and the **formats** available for it (json/yaml/toml/xml/csv/…).
+- **HiAi + PECs prediction** (`prediction.py`) — `CodePredictor` analyses a
+  submitted snippet and predicts its **language**, **algorithmic family**
+  (sorting/searching/dynamic-programming/graph/recursion/parsing/concurrency/
+  I/O/math/ML), and **format**. It fuses several signals — predetermined
+  keyword/construct signature algorithms, file-extension hints, and a coding
+  **style** fingerprint — and normalises the snippet through the PECs
+  term-control system so predictions are made over controlled terms. Each
+  prediction carries a confidence and a human-readable rationale ("why"), and
+  is recorded in retention so future decisions are history-aware.
+
+`InteractionController.predict_code(code, filename)` returns a `Prediction`,
+and `choose_provider_for(code, filename)` predicts the language and suggests a
+configured provider (e.g. Swift → `xcode`, Python → `chatgptcodex`, JS/TS →
+`openrouter`) when one is enabled. The overlay's **Preview** action shows the
+prediction alongside the sandboxed run. Apple core ports live in
+`CodePrediction.swift` (catalog + predictor) and the extended `ProviderKind`.
+
+The overlay's **Voice & Chat** tab ties these together (chat log + input, and
+Voice Command / Interlude / Preview buttons) via `InteractionController`,
+built from the `interaction` block of `config/default_settings.json` (voice
+wake-word, chat history, sandbox limits, and the `providers` list). The Apple
+core ports the voice parser, chat/interlude, and provider registry to pure
+Foundation (`VoiceCommands.swift`, `AssistantChat.swift`, `ModelProviders.swift`).
+
+> **Secrets:** set provider keys as environment variables (e.g.
+> `TOGETHER_API_KEY`, `HUGGINGFACE_API_KEY`). Never put keys in config or code.
+
+## Assistant Persona & Analysis Engine
+
+AicodeX includes a self-contained, dependency-free engine that fine-tunes the
+assistant and UI persona style and analyzes incoming data:
+
+1. **Persona style** (`persona.py`) — a configurable tone/personality profile
+   expressed over graphical trait axes (`analytical`, `creative`, `driver`,
+   `amiable`). Fine-tuning is just loading/merging the `assistant.persona`
+   config block; the same model drives the UI's presentation.
+2. **Analysis** (`analyzer.py`) — `IncomingDataAnalyzer` scores incoming
+   text/data into a trait profile plus a confidence value.
+3. **Solutions** (`solutions.py`) — `SolutionMatcher` maps a profile to a
+   complete performance solution from the `assistant.knowledge_base`. When no
+   entry fits, it **explains why** (unmet traits / insufficient confidence)
+   instead of failing silently.
+4. **TWINBRAIN** (`twinbrain.py`) — a dual-hemisphere reasoner that proposes
+   analytic (left) and associative (right) candidate pathways.
+5. **CCC.Ai — Corpus Callosum Council** (`council.py`) — deliberates between
+   the twin-brain candidates and makes a rational, truth-justified decision
+   gated by evidence and confidence.
+6. **PEC routing + retention** (`router.py`) — a term-control system spreads the
+   question through the engine's channels and records the query/decision/return
+   in a retention store, so future decisions are justified by retained history.
+
+The whole pipeline is orchestrated by `AssistantEngine` (`engine.py`) and is
+exposed in the overlay's **Assistant** tab. Configure it under the `assistant`
+block of `config/default_settings.json` (persona profile, `trait_axes`,
+`knowledge_base`, `retention`, and `council` gates). The Apple core ports the
+persona/analyzer/matcher to pure Foundation in
+`apple/Sources/AicodeXCore/` (`AssistantPersona.swift`, `AssistantAnalysis.swift`).
 
 ## Installation
 

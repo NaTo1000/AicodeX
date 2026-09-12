@@ -7,6 +7,9 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import platform
 
+from assistant import AssistantEngine
+from interaction import InteractionController
+
 
 class OverlayWindow:
     """Main overlay window for AicodeX"""
@@ -15,6 +18,10 @@ class OverlayWindow:
         """Initialize the overlay window"""
         self.config = config
         self.hotkey_manager = hotkey_manager
+        self.assistant_engine = AssistantEngine.from_config(config.settings)
+        self.interaction = InteractionController.from_config(
+            self.assistant_engine, config.settings
+        )
         self.root = tk.Tk()
         self.visible = True
         self.setup_window()
@@ -75,6 +82,16 @@ class OverlayWindow:
         actions_frame = ttk.Frame(notebook, padding="5")
         notebook.add(actions_frame, text="Actions")
         self.create_actions_tab(actions_frame)
+        
+        # Assistant (persona & analysis) tab
+        assistant_frame = ttk.Frame(notebook, padding="5")
+        notebook.add(assistant_frame, text="Assistant")
+        self.create_assistant_tab(assistant_frame)
+        
+        # Voice & Chat tab
+        interaction_frame = ttk.Frame(notebook, padding="5")
+        notebook.add(interaction_frame, text="Voice & Chat")
+        self.create_interaction_tab(interaction_frame)
         
         # Settings tab
         settings_frame = ttk.Frame(notebook, padding="5")
@@ -137,6 +154,145 @@ class OverlayWindow:
             btn = ttk.Button(actions_frame, text=action_name, command=action_func)
             btn.pack(fill=tk.X, pady=2)
             
+    def create_assistant_tab(self, parent):
+        """Create the Assistant Persona & Analysis tab"""
+        frame = ttk.Frame(parent)
+        frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        persona = self.assistant_engine.persona
+        ttk.Label(
+            frame,
+            text=f"Assistant: {persona.name} (tone: {persona.tone})",
+            font=("Arial", 10, "bold"),
+        ).pack(anchor=tk.W, pady=(0, 5))
+
+        # Persona trait (graphical personality) read-out
+        traits = ", ".join(
+            f"{axis}={value:.2f}" for axis, value in persona.dominant_traits()
+        ) or "none"
+        ttk.Label(frame, text=f"Persona traits: {traits}", wraplength=360).pack(
+            anchor=tk.W, pady=(0, 8)
+        )
+
+        ttk.Label(frame, text="Ask the assistant:").pack(anchor=tk.W)
+        self.assistant_input = ttk.Entry(frame)
+        self.assistant_input.pack(fill=tk.X, pady=(2, 4))
+        self.assistant_input.bind("<Return>", lambda _e: self.run_assistant())
+
+        ttk.Button(frame, text="Analyze", command=self.run_assistant).pack(
+            fill=tk.X, pady=(0, 6)
+        )
+
+        self.assistant_output = scrolledtext.ScrolledText(frame, height=14, wrap=tk.WORD)
+        self.assistant_output.pack(fill=tk.BOTH, expand=True)
+        self.assistant_output.insert(
+            tk.END,
+            "Type a question and press Analyze. The engine will profile the "
+            "incoming data against graphical personality types, match a "
+            "performance solution (or explain why none fits), and show the "
+            "TWINBRAIN + CCC.Ai council's justified decision.",
+        )
+        self.assistant_output.config(state=tk.DISABLED)
+
+    def run_assistant(self):
+        """Analyze the input and render the assistant report."""
+        question = self.assistant_input.get().strip()
+        if not question:
+            return
+        report = self.assistant_engine.process(question)
+        self.assistant_output.config(state=tk.NORMAL)
+        self.assistant_output.delete("1.0", tk.END)
+        self.assistant_output.insert(tk.END, report.summary())
+        self.assistant_output.config(state=tk.DISABLED)
+
+    def create_interaction_tab(self, parent):
+        """Create the Voice & Chat tab (chat, voice commands, interludes, sandbox)."""
+        frame = ttk.Frame(parent)
+        frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        ttk.Label(frame, text="Chat & Voice Commands", font=("Arial", 10, "bold")).pack(
+            anchor=tk.W, pady=(0, 5)
+        )
+
+        # Conversation / output log
+        self.interaction_log = scrolledtext.ScrolledText(frame, height=12, wrap=tk.WORD)
+        self.interaction_log.pack(fill=tk.BOTH, expand=True)
+        self.interaction_log.config(state=tk.DISABLED)
+        self._interaction_append(
+            "system",
+            "Chat with the assistant, or use a voice command. Try 'help', "
+            "'analyze <text>', 'preview <code>', 'interlude <topic>'.",
+        )
+
+        # Input row
+        input_row = ttk.Frame(frame)
+        input_row.pack(fill=tk.X, pady=(6, 4))
+        self.interaction_input = ttk.Entry(input_row)
+        self.interaction_input.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.interaction_input.bind("<Return>", lambda _e: self.run_chat())
+
+        # Button row
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill=tk.X)
+        ttk.Button(buttons, text="Send", command=self.run_chat).pack(side=tk.LEFT, padx=(0, 4))
+        ttk.Button(buttons, text="Voice Command", command=self.run_voice).pack(side=tk.LEFT, padx=4)
+        ttk.Button(buttons, text="Interlude", command=self.toggle_interlude).pack(side=tk.LEFT, padx=4)
+        ttk.Button(buttons, text="Preview", command=self.run_preview).pack(side=tk.LEFT, padx=4)
+
+    def _interaction_append(self, role, text):
+        self.interaction_log.config(state=tk.NORMAL)
+        self.interaction_log.insert(tk.END, f"{role}: {text}\n\n")
+        self.interaction_log.see(tk.END)
+        self.interaction_log.config(state=tk.DISABLED)
+
+    def run_chat(self):
+        """Send the typed input as a chat message through the assistant engine."""
+        text = self.interaction_input.get().strip()
+        if not text:
+            return
+        self.interaction_input.delete(0, tk.END)
+        self._interaction_append("you", text)
+        reply = self.interaction.chat(text)
+        self._interaction_append("assistant", reply)
+
+    def run_voice(self):
+        """Treat the typed input as a spoken voice command."""
+        utterance = self.interaction_input.get().strip()
+        if not utterance:
+            return
+        self.interaction_input.delete(0, tk.END)
+        self._interaction_append("voice", utterance)
+        response = self.interaction.handle_voice(utterance)
+        self._interaction_append("assistant", response)
+
+    def toggle_interlude(self):
+        """Start a brainstorming interlude, or end the active one."""
+        if self.interaction.interludes.active:
+            result = self.interaction.end_interlude()
+        else:
+            topic = self.interaction_input.get().strip() or "brainstorm"
+            self.interaction_input.delete(0, tk.END)
+            result = self.interaction.start_interlude(topic)
+        self._interaction_append("system", result)
+
+    def run_preview(self):
+        """Run the typed input as a sandboxed code snippet preview."""
+        code = self.interaction_input.get().strip()
+        if not code:
+            return
+        self.interaction_input.delete(0, tk.END)
+        self._interaction_append("you", f"[preview] {code}")
+        # HiAi + PECs prediction of the snippet's language/algorithm/format.
+        prediction = self.interaction.predict_code(code)
+        self._interaction_append(
+            "predict",
+            f"language={prediction.language} ({prediction.variant}), "
+            f"format={prediction.format}, algorithm={prediction.algorithm} "
+            f"(conf {prediction.language_confidence:.2f})",
+        )
+        result = self.interaction.preview(code)
+        self._interaction_append("sandbox", result.summary())
+
     def create_settings_tab(self, parent):
         """Create the settings tab"""
         settings_frame = ttk.Frame(parent)
