@@ -197,11 +197,13 @@ class SnippetSandboxTests(unittest.TestCase):
 
 class ProviderAdapterTests(unittest.TestCase):
     def test_all_kinds_registered(self):
+        # Original 8 kinds must always be present (regression guard); newer
+        # kinds (grok4, openrouter, gemini, ...) may be added over time.
         expected = {
             "huggingface", "northflank", "bentoml", "replicate",
             "modal", "lambdalabs", "together", "runpod",
         }
-        self.assertEqual(set(ADAPTER_KINDS.keys()), expected)
+        self.assertTrue(expected.issubset(set(ADAPTER_KINDS.keys())))
 
     def test_together_builds_openai_style_request(self):
         captured = {}

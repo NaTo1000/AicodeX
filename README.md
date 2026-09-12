@@ -32,7 +32,9 @@
 - 🧠 **Assistant Persona & Analysis Engine** - Profiles incoming data against graphical personality types and matches complete performance solutions, explaining itself when none fit
 - 🎙️ **Voice Commands & Chat** - Full voice-command framework plus chat with mid-code "interlude" brainstorming and modelling adjustments
 - 🧪 **Sandbox Snippet Preview** - Safely run and preview small code snippets with timeouts and bounded output
-- 🔌 **Pluggable AI Models** - Adapters for Hugging Face, Northflank, BentoML, Replicate, Modal, Lambda Labs, Together AI, and RunPod
+- 🔌 **Pluggable AI Models** - Adapters for Hugging Face, Northflank, BentoML, Replicate, Modal, Lambda Labs, Together AI, RunPod, Grok-4, OpenRouter, Gemini, ChatGPT Codex, ChatGPT-6 Luna, Claude, Codex, Minstrel, Kodex, and Xcode
+- 🌐 **Languages & Formats** - A catalog of world programming languages, their code variants, and interchange formats
+- 🔮 **HiAi + PECs Code Prediction** - Predicts a submitted snippet's language, algorithmic family, and format from the code and your style
 
 ## Voice, Chat, Sandbox & AI Providers
 
@@ -56,9 +58,36 @@ Building on the Assistant Engine, AicodeX adds an interaction subsystem
 - **Pluggable AI providers** (`providers/`) — a `ModelProvider` base with an
   injectable HTTP transport (no real network calls in tests), a registry, and
   thin adapters for Hugging Face, Northflank, BentoML, Replicate, Modal, Lambda
-  Labs, Together AI, and RunPod, plus an offline `MockProvider` fallback. API
-  keys are referenced by environment-variable **name** only and are never
-  persisted or committed.
+  Labs, Together AI, RunPod, **Grok-4** (xAI), **OpenRouter**, **Gemini**,
+  **ChatGPT Codex**, **ChatGPT-6 Luna**, **Claude (decoder)**, **Codex**,
+  **Minstrel** (vibe coder), **Kodex**, and **Xcode**, plus an offline
+  `MockProvider` fallback. Most hosted services share an OpenAI-compatible
+  chat-completions shape, so they reuse a common adapter and differ only by
+  endpoint/model; Gemini uses its own `generateContent` shape. API keys are
+  referenced by environment-variable **name** only and are never persisted.
+
+### Languages, Variants, Formats & Code Prediction (HiAi + PECs)
+
+- **Languages & formats** (`languages.py`) — a declarative `LanguageCatalog` of
+  ~25 world programming/markup languages, each with its **code variants** (e.g.
+  Swift: `swiftui`/`uikit`/`swift5`/`swift6`; SQL: `postgres`/`mysql`/`sqlite`/
+  `tsql`) and the **formats** available for it (json/yaml/toml/xml/csv/…).
+- **HiAi + PECs prediction** (`prediction.py`) — `CodePredictor` analyses a
+  submitted snippet and predicts its **language**, **algorithmic family**
+  (sorting/searching/dynamic-programming/graph/recursion/parsing/concurrency/
+  I/O/math/ML), and **format**. It fuses several signals — predetermined
+  keyword/construct signature algorithms, file-extension hints, and a coding
+  **style** fingerprint — and normalises the snippet through the PECs
+  term-control system so predictions are made over controlled terms. Each
+  prediction carries a confidence and a human-readable rationale ("why"), and
+  is recorded in retention so future decisions are history-aware.
+
+`InteractionController.predict_code(code, filename)` returns a `Prediction`,
+and `choose_provider_for(code, filename)` predicts the language and suggests a
+configured provider (e.g. Swift → `xcode`, Python → `chatgptcodex`, JS/TS →
+`openrouter`) when one is enabled. The overlay's **Preview** action shows the
+prediction alongside the sandboxed run. Apple core ports live in
+`CodePrediction.swift` (catalog + predictor) and the extended `ProviderKind`.
 
 The overlay's **Voice & Chat** tab ties these together (chat log + input, and
 Voice Command / Interlude / Preview buttons) via `InteractionController`,

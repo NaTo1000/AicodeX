@@ -43,6 +43,17 @@ public enum ProviderKind: String, CaseIterable {
     case lambdalabs
     case together
     case runpod
+    case grok4
+    case openrouter
+    case gemini
+    case chatgptcodex
+    case chatgpt6luna
+    case claudecoder
+    case codex
+    case minstrel
+    case kodex
+    case xcode
+    case generic
     case mock
 }
 

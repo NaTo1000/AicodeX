@@ -36,6 +36,8 @@ final class AppViewModel: ObservableObject {
     private(set) lazy var interludes = InterludeManager(session: chat)
     /// Offline-first model provider resolution (mock fallback when unconfigured).
     private(set) var providers = ProviderRegistry()
+    /// HiAi code predictor (language/variant/format/algorithm from a snippet).
+    private let predictor = CodePredictor()
 
     init(store: SettingsStore) {
         self.store = store
@@ -137,6 +139,14 @@ final class AppViewModel: ObservableObject {
         let reply = chat.sendUser(text)
         statusMessage = reply
         return reply
+    }
+
+    /// Predict a submitted snippet's language/variant/format/algorithm (HiAi).
+    @discardableResult
+    func predictCode(_ code: String, filename: String? = nil) -> CodePrediction {
+        let prediction = predictor.predict(code, filename: filename)
+        statusMessage = "Predicted: \(prediction.language) (\(prediction.variant)) / \(prediction.format)"
+        return prediction
     }
 
     // MARK: - Settings
