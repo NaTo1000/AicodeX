@@ -89,6 +89,16 @@ def default_interaction_settings():
             {"name": "lambdalabs", "kind": "lambdalabs", "endpoint": "https://api.lambdalabs.com/v1", "api_key_env": "LAMBDA_API_KEY", "enabled": False},
             {"name": "together", "kind": "together", "endpoint": "https://api.together.xyz/v1", "api_key_env": "TOGETHER_API_KEY", "enabled": True},
             {"name": "runpod", "kind": "runpod", "endpoint": "https://api.runpod.io/v2", "api_key_env": "RUNPOD_API_KEY", "enabled": False},
+            {"name": "grok4", "kind": "grok4", "endpoint": "https://api.x.ai/v1", "api_key_env": "XAI_API_KEY", "enabled": False},
+            {"name": "openrouter", "kind": "openrouter", "endpoint": "https://openrouter.ai/api/v1", "api_key_env": "OPENROUTER_API_KEY", "enabled": False},
+            {"name": "gemini", "kind": "gemini", "endpoint": "https://generativelanguage.googleapis.com/v1beta", "api_key_env": "GEMINI_API_KEY", "enabled": False},
+            {"name": "chatgptcodex", "kind": "chatgptcodex", "endpoint": "https://api.openai.com/v1", "api_key_env": "OPENAI_API_KEY", "enabled": False},
+            {"name": "chatgpt6luna", "kind": "chatgpt6luna", "endpoint": "https://api.openai.com/v1", "api_key_env": "OPENAI_API_KEY", "enabled": False},
+            {"name": "claudecoder", "kind": "claudecoder", "endpoint": "https://api.anthropic.com/v1", "api_key_env": "ANTHROPIC_API_KEY", "enabled": False},
+            {"name": "codex", "kind": "codex", "endpoint": "https://api.openai.com/v1", "api_key_env": "OPENAI_API_KEY", "enabled": False},
+            {"name": "minstrel", "kind": "minstrel", "endpoint": "https://api.minstrel.example/v1", "api_key_env": "MINSTREL_API_KEY", "enabled": False},
+            {"name": "kodex", "kind": "kodex", "endpoint": "https://api.kodex.example/v1", "api_key_env": "KODEX_API_KEY", "enabled": False},
+            {"name": "xcode", "kind": "xcode", "endpoint": "https://api.xcode.example/v1", "api_key_env": "XCODE_API_KEY", "enabled": False},
         ],
     }
 

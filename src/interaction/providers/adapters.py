@@ -136,6 +136,104 @@ class RunPodProvider(HTTPJsonProvider):
         return _first_text(body)
 
 
+class _OpenAIChatProvider(HTTPJsonProvider):
+    """Shared adapter for OpenAI-style ``/chat/completions`` services.
+
+    Many hosted model providers (OpenRouter, xAI Grok, OpenAI/Codex, Lambda,
+    Together, and various community "vibe coder" front-ends) expose the same
+    chat-completions shape, differing only in endpoint and model naming. This
+    base captures that common request/response; subclasses set ``kind`` and may
+    override ``path``.
+    """
+
+    kind = "openai_chat"
+    path = "/chat/completions"
+
+    def build_request(self, model: str, prompt: str):
+        url = f"{self.endpoint}{self.path}"
+        payload = {"model": model, "messages": [{"role": "user", "content": prompt}]}
+        return url, self.auth_headers(), self._json(payload)
+
+    def parse_response(self, body) -> str:
+        return _first_text(body)
+
+
+class Grok4Provider(_OpenAIChatProvider):
+    """xAI Grok 4 (OpenAI-compatible chat completions)."""
+    kind = "grok4"
+
+
+class OpenRouterProvider(_OpenAIChatProvider):
+    """OpenRouter multi-model gateway (OpenAI-compatible)."""
+    kind = "openrouter"
+
+
+class ChatGPTCodexProvider(_OpenAIChatProvider):
+    """OpenAI ChatGPT Codex code-tuned chat."""
+    kind = "chatgptcodex"
+
+
+class ChatGPT6LunaProvider(_OpenAIChatProvider):
+    """ChatGPT-6 "Luna" (OpenAI-compatible)."""
+    kind = "chatgpt6luna"
+
+
+class ClaudeDecoderProvider(_OpenAIChatProvider):
+    """Anthropic Claude (decoder) via an OpenAI-compatible gateway."""
+    kind = "claudecoder"
+
+
+class CodexProvider(_OpenAIChatProvider):
+    """OpenAI Codex completions."""
+    kind = "codex"
+
+
+class MinstrelProvider(_OpenAIChatProvider):
+    """Minstrel vibe coder (OpenAI-compatible)."""
+    kind = "minstrel"
+
+
+class KodexProvider(_OpenAIChatProvider):
+    """Kodex code assistant (OpenAI-compatible)."""
+    kind = "kodex"
+
+
+class XcodeProvider(_OpenAIChatProvider):
+    """Xcode / Apple-hosted coding assistant (OpenAI-compatible)."""
+    kind = "xcode"
+
+
+class GeminiProvider(HTTPJsonProvider):
+    """Google Gemini ``generateContent`` (non-OpenAI request shape)."""
+    kind = "gemini"
+
+    def build_request(self, model: str, prompt: str):
+        # Gemini takes the API key as a query param rather than a header.
+        url = f"{self.endpoint}/models/{model}:generateContent"
+        key = self.api_key()
+        if key:
+            url = f"{url}?key={key}"
+        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+        return url, {}, self._json(payload)
+
+    def parse_response(self, body) -> str:
+        if isinstance(body, dict):
+            candidates = body.get("candidates")
+            if isinstance(candidates, list) and candidates:
+                content = candidates[0].get("content", {}) if isinstance(candidates[0], dict) else {}
+                parts = content.get("parts") if isinstance(content, dict) else None
+                if isinstance(parts, list) and parts and isinstance(parts[0], dict):
+                    text = parts[0].get("text")
+                    if isinstance(text, str):
+                        return text
+        return _first_text(body)
+
+
+class GenericProvider(_OpenAIChatProvider):
+    """Catch-all adapter for any OpenAI-compatible endpoint."""
+    kind = "generic"
+
+
 #: kind → adapter class, used by the registry/factory.
 ADAPTER_KINDS: Dict[str, type] = {
     p.kind: p
@@ -148,5 +246,16 @@ ADAPTER_KINDS: Dict[str, type] = {
         LambdaLabsProvider,
         TogetherProvider,
         RunPodProvider,
+        Grok4Provider,
+        OpenRouterProvider,
+        GeminiProvider,
+        ChatGPTCodexProvider,
+        ChatGPT6LunaProvider,
+        ClaudeDecoderProvider,
+        CodexProvider,
+        MinstrelProvider,
+        KodexProvider,
+        XcodeProvider,
+        GenericProvider,
     )
 }

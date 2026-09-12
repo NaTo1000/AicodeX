@@ -282,6 +282,14 @@ class OverlayWindow:
             return
         self.interaction_input.delete(0, tk.END)
         self._interaction_append("you", f"[preview] {code}")
+        # HiAi + PECs prediction of the snippet's language/algorithm/format.
+        prediction = self.interaction.predict_code(code)
+        self._interaction_append(
+            "predict",
+            f"language={prediction.language} ({prediction.variant}), "
+            f"format={prediction.format}, algorithm={prediction.algorithm} "
+            f"(conf {prediction.language_confidence:.2f})",
+        )
         result = self.interaction.preview(code)
         self._interaction_append("sandbox", result.summary())
 

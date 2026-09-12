@@ -13,6 +13,7 @@ import time
 from typing import Callable, Optional
 
 from .chat import ChatSession, InterludeManager
+from .prediction import CodePredictor, Prediction
 from .providers import ProviderManager, ProviderRegistry, ProviderResponse
 from .sandbox import ExecutionResult, SnippetSandbox
 from .voice import CommandParser, DictSpeechEngine, VoiceCommandProcessor
@@ -29,6 +30,7 @@ class InteractionController:
         sandbox: Optional[SnippetSandbox] = None,
         voice: Optional[VoiceCommandProcessor] = None,
         providers: Optional[ProviderManager] = None,
+        predictor: Optional[CodePredictor] = None,
     ) -> None:
         self.engine = engine
         self.session = session or ChatSession(engine)
@@ -37,6 +39,7 @@ class InteractionController:
         self.sandbox = sandbox or SnippetSandbox()
         self.voice = voice or VoiceCommandProcessor(CommandParser(), DictSpeechEngine())
         self.providers = providers or ProviderManager()
+        self.predictor = predictor or CodePredictor()
         self._wire_voice_hooks()
 
     @classmethod
@@ -77,7 +80,8 @@ class InteractionController:
         )
         providers = ProviderManager(registry)
 
-        return cls(engine, session, interludes, sandbox, voice, providers)
+        predictor = CodePredictor()
+        return cls(engine, session, interludes, sandbox, voice, providers, predictor)
 
     @property
     def persona(self):
@@ -124,6 +128,58 @@ class InteractionController:
     # -- providers ---------------------------------------------------------
     def generate(self, model: str, prompt: str, provider_name: Optional[str] = None) -> ProviderResponse:
         return self.providers.generate(model, prompt, provider_name)
+
+    # -- prediction (HiAi + PECs) ------------------------------------------
+    def predict_code(self, code: object, filename: Optional[str] = None) -> Prediction:
+        """Predict language/variant/format/algorithm for a submitted snippet.
+
+        Records the prediction in the assistant engine's retention store so
+        future predictions/decisions are history-aware (PECs data retention).
+        """
+        prediction = self.predictor.predict(code, filename=filename)
+        self._record_prediction(code, prediction)
+        return prediction
+
+    def _record_prediction(self, code: object, prediction: Prediction) -> None:
+        retention = getattr(getattr(self.engine, "router", None), "retention", None)
+        if retention is None:
+            return
+        text = code if isinstance(code, str) else str(code or "")
+        key = f"code:{prediction.language}/{prediction.format}"
+        retention.record(
+            key, text, chosen=prediction.language,
+            justified=prediction.language_confidence >= 0.5,
+            confidence=prediction.language_confidence,
+        )
+
+    def choose_provider_for(self, code: object, filename: Optional[str] = None):
+        """Predict the code's language and suggest the best enabled provider.
+
+        Returns ``(prediction, provider_name_or_none)``. Prefers a configured
+        provider whose name matches the predicted language family, else the
+        first enabled provider, else the mock fallback.
+        """
+        prediction = self.predictor.predict(code, filename=filename)
+        registry = self.providers.registry
+        lang = prediction.language.lower()
+
+        # Map a predicted language to a preferred provider when one is enabled.
+        preferred = None
+        lang_pref_map = {
+            "swift": "xcode",
+            "python": "chatgptcodex",
+            "javascript": "openrouter",
+            "typescript": "openrouter",
+        }
+        candidate = lang_pref_map.get(lang)
+        if candidate is not None:
+            provider = registry.get(candidate)
+            if provider is not None and provider.enabled:
+                preferred = candidate
+        if preferred is None:
+            enabled = registry.enabled()
+            preferred = enabled[0].name if enabled else "mock"
+        return prediction, preferred
 
     # -- misc --------------------------------------------------------------
     @staticmethod

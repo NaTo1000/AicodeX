@@ -17,6 +17,8 @@ from .voice import (
 )
 from .chat import ChatMessage, ChatSession, Interlude, InterludeManager
 from .sandbox import ExecutionResult, SnippetSandbox
+from .languages import FORMATS, CodeLanguage, LanguageCatalog
+from .prediction import CodePredictor, Prediction, StyleFingerprint
 from .controller import InteractionController
 
 __all__ = [
@@ -32,5 +34,11 @@ __all__ = [
     "InterludeManager",
     "ExecutionResult",
     "SnippetSandbox",
+    "FORMATS",
+    "CodeLanguage",
+    "LanguageCatalog",
+    "CodePredictor",
+    "Prediction",
+    "StyleFingerprint",
     "InteractionController",
 ]
