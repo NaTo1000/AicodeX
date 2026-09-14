@@ -6,7 +6,7 @@ Every component feeds a :class:`MonitorSystem` through a per-component
 analysis coordination hooks for *database analysis management* — keeping
 innovation and future-development signals flowing.
 
-The monitor ticks on a configurable realtime interval (default **0.5 s**) and
+The monitor ticks on a configurable realtime interval (default **1.0 s**) and
 renders a live metrics display. Standard library only; deterministic when the
 clock is injected, so it is fully testable offline.
 """
@@ -56,7 +56,7 @@ class MonitorSystem:
     Parameters
     ----------
     refresh_interval:
-        Realtime refresh interval in seconds (default ``0.5``).
+        Realtime refresh interval in seconds (default ``1.0``).
     conductor:
         Optional callable receiving each tick's batched samples for
         enhancement management (the CHAiMERA ConductorX hook).
@@ -67,7 +67,7 @@ class MonitorSystem:
         Time source; injected for determinism in tests.
     """
 
-    def __init__(self, refresh_interval: float = 0.5,
+    def __init__(self, refresh_interval: float = 1.0,
                  conductor: Optional[Callable[[List[MetricSample]], None]] = None,
                  db_analyzer: Optional[Callable[[List[MetricSample]], None]] = None,
                  clock: Callable[[], float] = time.monotonic) -> None:

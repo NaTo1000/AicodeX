@@ -158,7 +158,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         from .monitor import MonitorSystem
         mon_cfg = config.get("monitor", {}) if isinstance(config.get("monitor"), dict) else {}
         monitor = MonitorSystem(
-            refresh_interval=float(mon_cfg.get("refresh_interval_seconds", 0.5)))
+            refresh_interval=float(mon_cfg.get("refresh_interval_seconds", 1.0)))
         for component in mon_cfg.get("valves", []):
             monitor.valve(str(component))
         print(monitor.render())
@@ -177,7 +177,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         mon_cfg = config.get("monitor", {}) if isinstance(config.get("monitor"), dict) else {}
         forum_cfg = mon_cfg.get("forum", {}) if isinstance(mon_cfg.get("forum"), dict) else {}
         forum = CommunityForum(
-            refresh_seconds=float(forum_cfg.get("refresh_seconds", 0.5)))
+            refresh_seconds=float(forum_cfg.get("refresh_seconds", 2.0)))
         Path(args.forum_html).write_text(forum.render(), encoding="utf-8")
         print(f"forum page written to {args.forum_html}")
         return 0

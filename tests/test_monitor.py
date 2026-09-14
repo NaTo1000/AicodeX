@@ -92,9 +92,10 @@ class MonitorTickTests(unittest.TestCase):
         clock.advance(0.5)
         self.assertIsNotNone(monitor.run_once())
 
-    def test_default_refresh_interval_is_half_second(self) -> None:
-        self.assertEqual(MonitorSystem().refresh_interval, 0.5)
-        self.assertEqual(MON_CFG["refresh_interval_seconds"], 0.5)
+    def test_default_refresh_interval_is_one_second(self) -> None:
+        # Performance-level default: 1s tick, not a sub-second spin.
+        self.assertEqual(MonitorSystem().refresh_interval, 1.0)
+        self.assertEqual(MON_CFG["refresh_interval_seconds"], 1.0)
 
     def test_invalid_interval_rejected(self) -> None:
         with self.assertRaises(ValueError):
@@ -108,7 +109,7 @@ class MonitorRenderTests(unittest.TestCase):
             monitor.valve(component)
         text = monitor.render()
         self.assertIn("Realtime Monitor", text)
-        self.assertIn("0.50s", text)
+        self.assertIn("1.00s", text)
         self.assertIn("conductor", text)
 
 

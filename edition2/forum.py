@@ -36,7 +36,7 @@ class ForumPage:
     title: str = "AicodeX Community Forum"
     public: bool = True          # non-members can access and read
     read_only: bool = True       # visitors read; members post via the app
-    refresh_seconds: float = 0.5  # live-page refresh cadence
+    refresh_seconds: float = 2.0  # live-page refresh cadence
     articles: List[str] = field(default_factory=list)   # daily COB articles
     discussions: List[Discussion] = field(default_factory=list)
 
@@ -44,7 +44,7 @@ class ForumPage:
 class CommunityForum:
     """Builds the public, read-only community forum page."""
 
-    def __init__(self, refresh_seconds: float = 0.5) -> None:
+    def __init__(self, refresh_seconds: float = 2.0) -> None:
         self.page = ForumPage(refresh_seconds=float(refresh_seconds))
 
     # -- content ------------------------------------------------------------

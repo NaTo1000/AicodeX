@@ -24,8 +24,9 @@ class ForumModelTests(unittest.TestCase):
         self.assertTrue(FORUM_CFG["read_only"])
 
     def test_live_refresh_interval(self) -> None:
-        self.assertEqual(CommunityForum().page.refresh_seconds, 0.5)
-        self.assertEqual(FORUM_CFG["refresh_seconds"], 0.5)
+        # Performance-level default: 2s live refresh, not a 0.5s spin.
+        self.assertEqual(CommunityForum().page.refresh_seconds, 2.0)
+        self.assertEqual(FORUM_CFG["refresh_seconds"], 2.0)
 
     def test_publish_article_and_discussion(self) -> None:
         forum = CommunityForum()
@@ -44,7 +45,7 @@ class ForumRenderTests(unittest.TestCase):
         self.assertIn("AicodeX Community Forum", page)
         self.assertIn("anyone can read", page)
         self.assertIn('http-equiv="refresh"', page)          # live page
-        self.assertIn('data-live-refresh-ms="500"', page)    # 0.5s
+        self.assertIn('data-live-refresh-ms="2000"', page)   # 2s
 
     def test_render_includes_articles_and_discussions(self) -> None:
         forum = CommunityForum()
