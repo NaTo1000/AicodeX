@@ -250,5 +250,17 @@
         "targets": ["esp32", "heltec", "cyd", "flipper-zero", "jtag", "serial"]
       }
     }
+  },
+  "reviver": {
+    "description": "Adversarial continuous-testing cluster. The VRAM compression reviver + sector collector run constant patching, dependency relicensing and workflow semantic synthesis; the HiAi reality check flags unsupported claims; the threat scanner hunts 0-day trojan doors across six tunnel/container links; the testbed builder provisions near-real environments; the curveball engine throws adversarial variables to try to throw the system off; the research patcher researches, innovates and patches with future-proofing in mind.",
+    "compression_level": 6,
+    "tunnels": ["ssh", "tls", "websocket", "grpc", "serial-bridge", "vpn-mesh"],
+    "relicensing_map": { "unlicensed": "MIT", "unknown": "Apache-2.0", "proprietary": "Apache-2.0" },
+    "curveball_seed": 0,
+    "testbed": {
+      "base_fidelity": 0.4,
+      "containers": ["app", "db", "cache"],
+      "variables": { "latency_ms": 12, "packet_loss": 0.01, "cpu_load": 0.55, "mem_pressure": 0.4 }
+    }
   }
 }

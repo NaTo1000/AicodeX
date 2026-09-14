@@ -103,6 +103,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ppt-mesh", metavar="NODES", type=int,
                         help="plan a distributed mesh cluster of NODES peers "
                              "(admin/root only)")
+    parser.add_argument("--reviver", action="store_true",
+                        help="run one reviver-cluster cycle (VRAM revival, "
+                             "sector collection, relicensing, reality check, "
+                             "threat scan, curveball, patching)")
+    parser.add_argument("--reviver-scan", action="store_true",
+                        help="scan the six tunnel links for 0-day trojan-door "
+                             "indicators and exit")
+    parser.add_argument("--reviver-testbed", action="store_true",
+                        help="provision a near-real test environment and print "
+                             "its fidelity")
     return parser
 
 
@@ -259,6 +269,53 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print(tuner.render_profile(profile))
             else:
                 print(tuner.registry.render(tier=tuner.effective_tier(tier)))
+        except ConfigError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+        return 0
+
+    if args.reviver or args.reviver_scan or args.reviver_testbed:
+        from . import reviver as rv
+        r_cfg = config.get("reviver", {}) if isinstance(config.get("reviver"), dict) else {}
+        tb_cfg = (r_cfg.get("testbed", {})
+                  if isinstance(r_cfg.get("testbed"), dict) else {})
+        cluster = rv.ReviverCluster(
+            collector=rv.SectorCollector(r_cfg.get("relicensing_map")),
+            curveball=rv.CurveballEngine(seed=r_cfg.get("curveball_seed", 0)),
+        )
+        try:
+            if args.reviver_scan:
+                # Scan with no payloads: report the six watched tunnels.
+                tunnels = ", ".join(rv.SIX_TUNNELS)
+                print("AicodeX Edition 2 — 0-day Trojan-Door Scan")
+                print("=" * 60)
+                print(f"watching {len(rv.SIX_TUNNELS)} tunnels: {tunnels}")
+                print("signatures: "
+                      + ", ".join(rv.TROJAN_SIGNATURES[:4]) + ", …")
+                print("no payloads supplied on the CLI — pass them via the API")
+                return 0
+            if args.reviver_testbed:
+                env = cluster.testbed.build(
+                    "near-real",
+                    containers=list(tb_cfg.get("containers", ["app"])),
+                    variables=dict(tb_cfg.get("variables", {})))
+                print(env.name, "fidelity:", f"{env.fidelity:.0%}",
+                      f"links={env.link_count}",
+                      f"containers={len(env.containers)}")
+                return 0
+            # Full cycle over the config's testbed + a sample sector.
+            env = cluster.testbed.build(
+                "near-real",
+                containers=list(tb_cfg.get("containers", ["app"])),
+                variables=dict(tb_cfg.get("variables", {})))
+            report = cluster.run_cycle(
+                [rv.Sector("weights", b"model-payload" * 64)],
+                dependencies=[rv.Dependency("libx", "proprietary")],
+                claims={"the patch fixes the overflow":
+                        ["patch overflow resolved verified"]},
+                tunnel_payloads={"ssh": "os.system('id')"},
+                env=env)
+            print(report.render())
         except ConfigError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 2

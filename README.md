@@ -186,6 +186,26 @@ python -m edition2 --ppt-mesh 6 --ppt-tier admin  # plan a 6-node mesh (root)
 
 PPT configuration (root-key reference, default tier, mesh defaults, seed profiles) lives in the `ppt` section of `config/edition2_settings.json`.
 
+### Reviver Cluster — Adversarial Continuous Testing
+
+The **reviver cluster** (`edition2/reviver.py`) keeps the platform honest and future-proofed through constant, adversarial self-testing:
+
+- **VRAM compression reviver** — compresses/revives VRAM sectors with checksum integrity, detecting corrupt blocks so they can be re-patched.
+- **Sector collector** — harvests sectors and runs **constant patching, dependency relicensing** (stale/unknown licences re-issued to an allowed SPDX set), and **workflow semantic synthesis**.
+- **HiAi reality check** — flags fluent-but-unsupported claims (a claim with no evidential support fails the check).
+- **0-day trojan-door scanner** — sweeps payloads across the **six tunnel/container links** (ssh, tls, websocket, grpc, serial-bridge, vpn-mesh) for trojan-door indicators.
+- **Testbed builder** — provisions **near-real testing environments** (6-tunnel-linked container sets) with a fidelity score for how close to production they are.
+- **Curveball engine** — throws adversarial *"curve all variables"* mutations at an environment to try to throw the system off, reporting which invariants **held** and which **broke**.
+- **Research patcher** — turns every broken invariant or threat finding into a researched, innovated, **future-proofed** patch.
+
+```bash
+python -m edition2 --reviver           # run one full continuous-testing cycle
+python -m edition2 --reviver-scan      # list the watched tunnels + signatures
+python -m edition2 --reviver-testbed   # provision a near-real env, print fidelity
+```
+
+Reviver configuration (tunnels, relicensing map, curveball seed, testbed fidelity/containers/variables) lives in the `reviver` section of `config/edition2_settings.json`.
+
 ### Prompt Registers — Commit Differently, Decipher All at Once
 
 The **prompt registry** (`edition2/prompts.py`) holds the per-role working prompts in **six registers**, each committed under an **algorithmically different** digest so the commitments are structurally diverse:
