@@ -228,5 +228,27 @@
       "max_line_length": 100,
       "trailing_newline": true
     }
+  },
+  "ppt": {
+    "description": "Performance Personal Tuner (PPT). Per-user performance refinement with tiered access: user (standard targets), professional (sensitive targets — BIOS/JTAG/ToR/proxy), admin (root — mesh cluster planning). Elevation to professional/admin requires the $VAULT:PPT_ROOT_KEY reference to resolve in the local vault.",
+    "root_key_ref": "$VAULT:PPT_ROOT_KEY",
+    "default_tier": "user",
+    "mesh": {
+      "description": "Distributed clustering mesh — a topological autonomous system of peer nodes.",
+      "default_nodes": 6,
+      "max_degree": 4
+    },
+    "profiles": {
+      "balanced": {
+        "tier": "user",
+        "knobs": { "refresh_interval_seconds": 1.0, "max_workers": 4, "target_utilisation": 0.6, "band": 0.15, "lod": "standard" },
+        "targets": ["linux", "windows", "esp32", "serial", "ethernet", "home-server"]
+      },
+      "hardware-lab": {
+        "tier": "professional",
+        "knobs": { "max_workers": 8, "lod": "detailed" },
+        "targets": ["esp32", "heltec", "cyd", "flipper-zero", "jtag", "serial"]
+      }
+    }
   }
 }

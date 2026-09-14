@@ -91,6 +91,18 @@ def build_parser() -> argparse.ArgumentParser:
                         help="align committed prompt parameters against the "
                              "application's measured output and fine-tune "
                              "drifted registers")
+    parser.add_argument("--ppt", action="store_true",
+                        help="list the PPT (Performance Personal Tuner) "
+                             "target registry — platforms, shells, hardware "
+                             "and transports")
+    parser.add_argument("--ppt-tier", default=None,
+                        help="access tier for --ppt / --ppt-profile / "
+                             "--ppt-mesh: user | professional | admin")
+    parser.add_argument("--ppt-profile", metavar="NAME",
+                        help="render the named PPT tuning profile from config")
+    parser.add_argument("--ppt-mesh", metavar="NODES", type=int,
+                        help="plan a distributed mesh cluster of NODES peers "
+                             "(admin/root only)")
     return parser
 
 
@@ -213,6 +225,43 @@ def main(argv: Optional[List[str]] = None) -> int:
                                             guidance=guidance))
         else:
             print(registry.render())
+        return 0
+
+    if args.ppt or args.ppt_profile is not None or args.ppt_mesh is not None:
+        from .ppt import PersonalTuner, TargetRegistry
+        ppt_cfg = config.get("ppt", {}) if isinstance(config.get("ppt"), dict) else {}
+        tuner = PersonalTuner(
+            TargetRegistry(ppt_cfg.get("targets")),
+            vault=vault,
+            root_key_ref=str(ppt_cfg.get("root_key_ref", "$VAULT:PPT_ROOT_KEY")),
+        )
+        tier = str(args.ppt_tier or ppt_cfg.get("default_tier", "user"))
+        try:
+            if args.ppt_mesh is not None:
+                mesh_cfg = (ppt_cfg.get("mesh", {})
+                            if isinstance(ppt_cfg.get("mesh"), dict) else {})
+                max_degree = int(mesh_cfg.get("max_degree", 4))
+                print(tuner.plan_mesh(args.ppt_mesh, tier=tier,
+                                      max_degree=max_degree).render())
+            elif args.ppt_profile is not None:
+                profiles = (ppt_cfg.get("profiles", {})
+                            if isinstance(ppt_cfg.get("profiles"), dict) else {})
+                raw = profiles.get(args.ppt_profile)
+                if not isinstance(raw, dict):
+                    print(f"error: no PPT profile named '{args.ppt_profile}'",
+                          file=sys.stderr)
+                    return 2
+                profile = tuner.build_profile(
+                    args.ppt_profile,
+                    tier=str(raw.get("tier", tier)),
+                    knobs=raw.get("knobs", {}),
+                    targets=list(raw.get("targets", [])))
+                print(tuner.render_profile(profile))
+            else:
+                print(tuner.registry.render(tier=tuner.effective_tier(tier)))
+        except ConfigError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
         return 0
 
     orchestration = config.get("orchestration", {})

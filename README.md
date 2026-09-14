@@ -157,6 +157,35 @@ python -m edition2 --style-fingerprint "$(cat mycode.py)"   # infer a style fing
 
 Seed crossover entries and the default style profile live in the `crossover` and `style` sections of `config/edition2_settings.json`.
 
+### PPT — Performance Personal Tuner
+
+The **Performance Personal Tuner** (`edition2/ppt.py`) lets every user refine the platform's performance to their own needs. It ships a broad **target registry** and validates per-user **tuning profiles** against it, clamping every knob to a safe bound.
+
+**Tiered access** — elevation to *professional* or *admin* (root) requires the `$VAULT:PPT_ROOT_KEY` reference to resolve in the local vault (no key, no elevation):
+
+| Tier | Capabilities |
+|------|--------------|
+| `user` | Standard targets, own profiles, read-only mesh view |
+| `professional` | Sensitive targets (BIOS, JTAG, ToR, proxy), profile publishing |
+| `admin` | **Root** — mesh cluster planning + every target |
+
+**Target registry** (38 targets across 4 categories):
+- **Platforms:** OpenWrt, OpenWiFi, OpenLTE, OpenVNC, ToR, Obsidian OS, MediaTek Crystal tuning & creation, all Linux distros, all Arch Linux, Windows, Unix, MS-DOS, BIOS, Termux.
+- **Shells/terminals:** puTTY, Windows cmd, PowerShell, Windows Terminal, RealVNC, xpipe, Alacritty, Unix shell, MS-DOS prompt.
+- **Hardware:** Flipper Zero, CiferTech, MadHatter, TalkingSasquatch, CYD (Cheap Yellow Display), Heltec.org, all ESP32 module variants/models, all JTAG types & modes, all serial command interfaces.
+- **Transports:** remote, online, Ethernet, proxies, VPS, home servers.
+
+**Distributed clustering mesh** — an autonomous-system topology planner (admin/root): peer nodes linked ring-plus-shortcut style with a bounded degree.
+
+```bash
+python -m edition2 --ppt                          # the target registry (your tier)
+python -m edition2 --ppt --ppt-tier professional  # registry as a professional
+python -m edition2 --ppt-profile balanced         # render a tuning profile
+python -m edition2 --ppt-mesh 6 --ppt-tier admin  # plan a 6-node mesh (root)
+```
+
+PPT configuration (root-key reference, default tier, mesh defaults, seed profiles) lives in the `ppt` section of `config/edition2_settings.json`.
+
 ### Prompt Registers — Commit Differently, Decipher All at Once
 
 The **prompt registry** (`edition2/prompts.py`) holds the per-role working prompts in **six registers**, each committed under an **algorithmically different** digest so the commitments are structurally diverse:
