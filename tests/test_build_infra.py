@@ -7,7 +7,9 @@ runs offline (does not require Docker or Xcode).
 
 from __future__ import annotations
 
+import os
 import re
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -171,20 +173,45 @@ class AppleBuildTests(unittest.TestCase):
 
 
 class XcodeVersionChannelTests(unittest.TestCase):
-    """The Swift CI job must cover stable, beta, and developer Xcode builds."""
+    """CI selects installed toolchains and propagates required job failures."""
 
     def setUp(self) -> None:
         self.text = _read(CI_WORKFLOW)
 
     def test_xcode_matrix_channels(self) -> None:
-        for channel in ("stable", "latest-beta", "developer"):
-            self.assertIn(channel, self.text,
-                          f"Xcode channel '{channel}' missing from CI matrix")
+        self.assertIn("xcode: [latest-stable, latest]", self.text)
 
-    def test_beta_channels_use_xcodes_action(self) -> None:
-        self.assertIn("RobotsAndPencils/xcodes-action", self.text)
-        self.assertIn("include-prereleases: true", self.text)
-        self.assertIn("latest-prerelease", self.text)
+    def test_channels_use_supported_action_inputs(self) -> None:
+        self.assertIn("maxim-lobanov/setup-xcode@v1.6.0", self.text)
+        self.assertIn("xcode-version: ${{ matrix.xcode }}", self.text)
+        self.assertNotIn("RobotsAndPencils/xcodes-action", self.text)
+        self.assertNotIn("include-prereleases:", self.text)
+
+    def test_checks_run_for_nonstandard_pr_base(self) -> None:
+        self.assertRegex(self.text, r"(?m)^  pull_request:\s*\n  workflow_dispatch:")
+
+    def test_package_build_is_not_masked(self) -> None:
+        self.assertIn("swift build\n", self.text)
+        self.assertIn("swift test\n", self.text)
+        self.assertNotIn('|| echo "xcodebuild', self.text)
+
+    @unittest.skipUnless(os.name == "posix", "CI status step uses a POSIX shell")
+    def test_status_fails_unless_every_required_job_succeeds(self) -> None:
+        status_step = self.text.split("- name: Report job states\n", 1)[1]
+        script = status_step.split("        run: |\n", 1)[1]
+        variables = ("LINT_RESULT", "TEST_RESULT", "DOCKER_RESULT", "SWIFT_RESULT")
+        success = dict.fromkeys(variables, "success")
+        cases = [success]
+        for variable in variables:
+            for result in ("failure", "cancelled", "skipped"):
+                cases.append({**success, variable: result})
+        for results in cases:
+            with self.subTest(results=results):
+                completed = subprocess.run(
+                    ["sh", "-c", script], env={**os.environ, **results},
+                    capture_output=True, text=True, check=False)
+                expected = 0 if all(r == "success" for r in results.values()) else 1
+                self.assertEqual(completed.returncode, expected, completed.stderr)
 
     def test_credentials_doc_covers_beta_xcode(self) -> None:
         text = _read(CREDS_MD)

@@ -95,9 +95,12 @@ xcodebuild -exportArchive -archivePath build/AicodeX.xcarchive \
 
 ## Xcode beta & developer versions
 
-CI builds the Swift package across three Xcode channels — **stable** (runner
-default), **latest-beta**, and the latest **developer/seed** build (via
-[`RobotsAndPencils/xcodes-action`](https://github.com/RobotsAndPencils/xcodes-action)).
+CI builds the Swift package using the runner's newest installed stable Xcode
+(`latest-stable`) and newest installed Xcode including betas (`latest`), via
+[`maxim-lobanov/setup-xcode`](https://github.com/maxim-lobanov/setup-xcode).
+These may select the same version when the runner has no newer beta/developer
+build. CI does not download Xcode or require Apple credentials. `swift build`
+compiles the macOS SwiftUI executable; this is not an iOS archive/signing check.
 To work against a beta or developer Xcode locally:
 
 ```bash

@@ -8,7 +8,7 @@ on:
       - "LICENSE"
       - "*.md"
   pull_request:
-    branches: [main, develop]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -87,40 +87,26 @@ jobs:
           docker buildx bake -f docker/docker-bake.hcl --print default
 
   # -------------------------------------------------------------------------
-  # Swift: build the SwiftUI package. Runs on macOS across an Xcode channel
-  # matrix — the runner's stable default, the latest beta, and the latest
-  # developer (seed) build — so beta/developer toolchains are covered before
-  # they ship. SwiftLint runs when available.
+  # Swift: build the full SwiftUI package with installed stable and newest
+  # Xcode toolchains. "latest" includes beta/developer builds when available
+  # on the runner; no Apple account or toolchain download is required.
   # -------------------------------------------------------------------------
   swift:
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        # stable: the runner image's default Xcode.
-        # latest-beta: newest Xcode beta via RobotsAndPencils/xcodes.
-        # developer: newest developer/seed Xcode via xcodes --latest-prerelease.
-        xcode: [stable, latest-beta, developer]
+        xcode: [latest-stable, latest]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select stable Xcode (runner default)
-        if: matrix.xcode == 'stable'
+      - name: Select installed Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with:
+          xcode-version: ${{ matrix.xcode }}
+
+      - name: Show selected toolchain
         run: xcodebuild -version
-
-      - name: Install latest Xcode beta
-        if: matrix.xcode == 'latest-beta'
-        uses: RobotsAndPencils/xcodes-action@v1
-        with:
-          version: latest
-          include-prereleases: true
-
-      - name: Install latest developer Xcode
-        if: matrix.xcode == 'developer'
-        uses: RobotsAndPencils/xcodes-action@v1
-        with:
-          version: latest-prerelease
-          include-prereleases: true
 
       - name: SwiftLint (when available)
         run: |
@@ -130,20 +116,11 @@ jobs:
             echo "swiftlint not installed; skipping"
           fi
 
-      - name: Build & test Swift core
+      - name: Build SwiftUI app and test Swift core
         run: |
           cd apple
           swift build
           swift test
-
-      - name: Build SwiftUI app (Xcode / Apple SDK)
-        run: |
-          cd apple
-          # The Xcode scheme builds the SwiftUI app; swift test above already
-          # validated the cross-platform core logic.
-          xcodebuild -scheme AicodeXApp \
-            -destination 'generic/platform=iOS' build \
-            || echo "xcodebuild needs the Xcode project; core already tested"
 
   # -------------------------------------------------------------------------
   # Aggregate status: reports every job's state, always runs.
@@ -154,8 +131,19 @@ jobs:
     if: always()
     steps:
       - name: Report job states
+        env:
+          LINT_RESULT: ${{ needs.lint.result }}
+          TEST_RESULT: ${{ needs.test.result }}
+          DOCKER_RESULT: ${{ needs.docker.result }}
+          SWIFT_RESULT: ${{ needs.swift.result }}
         run: |
-          echo "lint:   ${{ needs.lint.result }}"
-          echo "test:   ${{ needs.test.result }}"
-          echo "docker: ${{ needs.docker.result }}"
-          echo "swift:  ${{ needs.swift.result }}"
+          echo "lint:   $LINT_RESULT"
+          echo "test:   $TEST_RESULT"
+          echo "docker: $DOCKER_RESULT"
+          echo "swift:  $SWIFT_RESULT"
+          for result in "$LINT_RESULT" "$TEST_RESULT" \
+                        "$DOCKER_RESULT" "$SWIFT_RESULT"; do
+            if [ "$result" != "success" ]; then
+              exit 1
+            fi
+          done

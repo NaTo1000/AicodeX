@@ -80,6 +80,11 @@ discarded. Reports show the final loads and refreshed `cap`/`boost`/`hold` label
 plus elapsed time, concurrency, and throughput. The default CLI uses simulated
 in-memory workers and constant bandwidth samples, not live VMware connections.
 
+CI runs on pull requests regardless of their base branch, and can also be
+started from Actions → CI → Run workflow. If a Copilot-triggered run shows
+`action_required` with no jobs, a maintainer must approve it in GitHub Actions;
+repository code cannot grant that approval.
+
 ### Compute Backends — Per-Model Links
 
 Every model has its own **compute link** (`edition2/backends.py`) describing where its work runs. Each role's `compute` block in `config/edition2_settings.json` selects exactly one backend kind:
