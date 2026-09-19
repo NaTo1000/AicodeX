@@ -206,9 +206,64 @@ class PerformanceControlTests(unittest.TestCase):
         self.assertEqual(reports["base_coder"].control, "hold")
 
     def test_invalid_target_utilisation_rejected(self) -> None:
-        for bad in (0.0, 1.0, -0.5, 1.5):
+        for bad in (0.0, 1.0, -0.5, 1.5, float("nan"), float("inf")):
             with self.assertRaises(ValueError):
                 PerformanceController(target_utilisation=bad)
+
+    def test_invalid_band_rejected(self) -> None:
+        for bad in (-0.1, float("nan"), float("inf"), -float("inf")):
+            with self.subTest(band=bad), self.assertRaises(ValueError):
+                PerformanceController(band=bad)
+
+    def test_band_balances_load_before_peak_threshold(self) -> None:
+        controller = PerformanceController(target_utilisation=0.60, band=0.15)
+        bots = [_bot("donor", "Claude", load=80.0),
+                _bot("receiver", "Gemini", load=35.0)]
+        report = Hive(bots, performance=controller).run()
+        self.assertAlmostEqual(bots[0].load, 75.0)
+        self.assertAlmostEqual(bots[1].load, 40.0)
+        self.assertAlmostEqual(report.metrics.moved, 5.0)
+        self.assertAlmostEqual(sum(r.load for r in report.bots), 115.0)
+
+    def test_balance_refreshes_reports_and_is_idempotent(self) -> None:
+        controller = PerformanceController(target_utilisation=0.60, band=0.15)
+        bots = [_bot("donor", "Claude", load=95.0),
+                _bot("receiver", "Gemini", load=25.0)]
+        hive = Hive(bots, performance=controller)
+        report = hive.run()
+        for bot, sample in zip(bots, report.bots):
+            self.assertEqual(sample.load, bot.load)
+            self.assertEqual(sample.state, "idle")
+            self.assertEqual(sample.control, "hold")
+        self.assertAlmostEqual(sum(r.load for r in report.bots), 120.0)
+        self.assertEqual(hive.balance(report.bots).moves, [])
+
+    def test_insufficient_headroom_preserves_excess_load(self) -> None:
+        controller = PerformanceController(target_utilisation=0.60, band=0.15)
+        bots = [_bot("donor", "Claude", load=100.0),
+                _bot("receiver", "Gemini", load=0.0, capacity=10.0)]
+        report = Hive(bots, performance=controller).run()
+        self.assertAlmostEqual(bots[0].load, 92.5)
+        self.assertAlmostEqual(bots[1].load, 7.5)
+        self.assertAlmostEqual(sum(r.load for r in report.bots), 100.0)
+        self.assertEqual(report.bots[0].control, "cap")
+        self.assertEqual(report.bots[1].control, "hold")
+
+    def test_peak_threshold_still_limits_wider_band(self) -> None:
+        controller = PerformanceController(target_utilisation=0.80, band=0.15)
+        bots = [_bot("donor", "Claude", load=100.0),
+                _bot("receiver", "Gemini", load=0.0, capacity=10.0)]
+        report = Hive(bots, performance=controller).run()
+        self.assertAlmostEqual(bots[1].load, 8.5)
+        self.assertAlmostEqual(sum(r.load for r in report.bots), 100.0)
+
+    def test_no_headroom_retains_load_and_cap_action(self) -> None:
+        controller = PerformanceController(target_utilisation=0.60, band=0.15)
+        bot = _bot("donor", "Claude", load=95.0)
+        report = Hive([bot], performance=controller).run()
+        self.assertEqual(report.balance.moves, [])
+        self.assertEqual(report.bots[0].load, 95.0)
+        self.assertEqual(report.bots[0].control, "cap")
 
     def test_run_metrics_populated(self) -> None:
         ticks = iter([100.0, 100.05])

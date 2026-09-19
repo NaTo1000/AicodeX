@@ -27,6 +27,7 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
+import math
 import time
 from typing import Callable, Dict, List, Optional, Sequence
 
@@ -140,8 +141,8 @@ class PerformanceController:
         self.max_workers = None if max_workers is None else int(max_workers)
         if not (0.0 < target_utilisation < 1.0):
             raise ValueError("target_utilisation must be within (0, 1)")
-        if band < 0.0:
-            raise ValueError("band must be >= 0")
+        if not math.isfinite(band) or band < 0.0:
+            raise ValueError("band must be finite and >= 0")
         self.target = float(target_utilisation)
         self.band = float(band)
         self._clock = clock
@@ -333,38 +334,46 @@ class Hive:
     # -- phase 2: trough balancing -----------------------------------------
 
     def balance(self, reports: List[BotReport]) -> LoadBalanceResult:
-        """Shed load from peak bots into trough bots.
+        """Shed load above the performance/peak limit into bots with headroom.
 
         Returns a record of the moves performed. Bots are matched by their
         report name; the underlying :class:`VMwareWorkerBot` load is updated so
-        the cluster state stays consistent.
+        the cluster state stays consistent. If no receiving capacity remains,
+        excess load is retained rather than discarded.
         """
         by_name: Dict[str, VMwareWorkerBot] = {b.name: b for b in self.bots}
         result = LoadBalanceResult()
 
-        peaks = [r for r in reports if r.state == "peak"]
-        troughs = sorted((r for r in reports if r.state == "trough"),
+        limit = min(self.peak_threshold,
+                    self.performance.target + self.performance.band)
+        peaks = [r for r in reports if r.utilisation > limit]
+        troughs = sorted((r for r in reports
+                         if r.utilisation < limit
+                         and (r.utilisation <= self.trough_threshold
+                              or self.performance.under(r))),
                          key=lambda r: r.utilisation)
 
         for peak in peaks:
             bot = by_name[peak.bot]
-            # amount above the peak threshold that we want to shed
-            excess = bot.load - (self.peak_threshold * bot.capacity)
+            # Respect both the safety threshold and the performance band.
+            excess = bot.load - (limit * bot.capacity)
             for trough in troughs:
                 if excess <= 0:
                     break
                 target = by_name[trough.bot]
-                # room before the trough bot itself reaches the peak threshold
-                room = (self.peak_threshold * target.capacity) - target.load
+                room = (limit * target.capacity) - target.load
                 if room <= 0:
                     continue
                 amount = min(excess, room)
                 target.load += amount
                 bot.load -= amount
-                trough.load = target.load  # keep the report view in sync
                 result.moves.append({"from": bot.name, "to": target.name,
                                      "amount": amount})
                 excess -= amount
+        for report in reports:
+            report.load = by_name[report.bot].load
+            report.state = self._classify(report)
+            report.control = self.performance.classify_control(report)
         return result
 
     # -- phase 3: data-gap patching -----------------------------------------

@@ -71,6 +71,15 @@ python -m edition2 --hive               # analyse → balance → patch, print C
 
 The implementation is standard-library only and deterministic when load/bandwidth samples are injected, so it is fully testable offline (see `tests/test_hive.py`).
 
+The `hive.performance` settings bound concurrent samplers (`max_workers`) and
+define a utilisation target and half-width (`target_utilisation`, `band`).
+Balancing sheds load above the lower of the band ceiling and `peak_threshold`
+into trough or below-band bots, without exceeding that same ceiling on receivers.
+If there is insufficient headroom, excess load stays on the donor; it is never
+discarded. Reports show the final loads and refreshed `cap`/`boost`/`hold` labels,
+plus elapsed time, concurrency, and throughput. The default CLI uses simulated
+in-memory workers and constant bandwidth samples, not live VMware connections.
+
 ### Compute Backends — Per-Model Links
 
 Every model has its own **compute link** (`edition2/backends.py`) describing where its work runs. Each role's `compute` block in `config/edition2_settings.json` selects exactly one backend kind:
