@@ -217,6 +217,10 @@
       }
     }
   },
+  "crosscode": {
+    "max_workers": 4,
+    "requests": []
+  },
   "style": {
     "description": "User code-writing-style database. Learns a style fingerprint from samples and rewrites code to match with precision; supports regular rereads and alignment.",
     "reread_interval": 10,

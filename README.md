@@ -171,6 +171,97 @@ python -m edition2 --style-fingerprint "$(cat mycode.py)"   # infer a style fing
 
 Seed crossover entries and the default style profile live in the `crossover` and `style` sections of `config/edition2_settings.json`.
 
+### Crosscode — Offline Algorithm References
+
+Crosscode matches **curated reference snippets by a shared algorithm ID**, in
+either direction between Python (`py`, `python3`), JavaScript (`js`, `ecmascript`),
+TypeScript (`ts`), Swift, Rust (`rs`), Go (`golang`), Java, C, C++ (`cpp`,
+`cplusplus`), C# (`csharp`, `cs`), Kotlin (`kt`), and Ruby (`rb`). Language names
+and aliases are case-insensitive. The two case-sensitive algorithm IDs are:
+
+- `integer_sum`: left-to-right sum; empty input returns zero.
+- `linear_search`: exact integer equality, returning the first zero-based match
+  or `-1` for absent/empty input.
+
+Both operate on finite, dense integer sequences, with no nulls, booleans,
+fractional/nonfinite values, custom equality, or concurrent mutation. Values,
+intermediate sums, lengths, and indices **must fit both variants' types**.
+JS/TS require safe integers; Swift uses `Int`; C uses `long long`; C++/Rust/Go
+use signed 64-bit values; Java/C#/Kotlin use `long`/`Long`. Python/Ruby arbitrary
+precision does not remove target overflow limits. C callers provide a valid,
+nonnegative length. Rust/C++ search indices must fit the signed return type.
+These are reference fragments/functions (Go needs a package declaration), not
+a claim of compiler testing across every toolchain.
+
+```bash
+python -m edition2 --crosscode-catalog
+python -m edition2 --crosscode-catalog --crosscode-json
+python -m edition2 --crosscode py 'C++' integer_sum
+python -m edition2 --crosscode rust python linear_search --crosscode-model Claude
+python -m edition2 --crosscode python all linear_search --crosscode-workers 8 --crosscode-json
+```
+
+`all` expands to every other registered language in sorted order. Unknown
+languages/algorithms, missing variants, and unavailable declared capabilities
+produce explicit `unsupported` results, never fabricated code. Exit status is
+**0** for success, **1** if any match is unsupported, and **2** for invalid
+configuration/arguments. Model/worker modifiers require `--crosscode`; JSON
+requires a crosscode query or catalog. Crosscode modes cannot be combined with
+other CLI modes. The existing `--crossover` mappings remain unchanged.
+
+Add optional `crosscode` settings to the existing settings JSON:
+
+```json
+"crosscode": {
+  "max_workers": 4,
+  "models": [
+    {
+      "model_id": "my-declared-model",
+      "provider": "my-provider-label",
+      "languages": ["python", "js", "rust"],
+      "algorithms": ["integer_sum", "linear_search"],
+      "enabled": true
+    }
+  ],
+  "requests": [
+    {"source_lang": "python", "target_lang": "rust", "algorithm": "integer_sum",
+     "model": "my-declared-model"}
+  ]
+}
+```
+
+When `models` is omitted, configured role model labels are reused, with all
+catalog capabilities declared locally and enabled if any corresponding role is
+enabled. An explicit list **replaces** those defaults; `[]` disables model
+routing. IDs/providers are arbitrary configuration labels, **not verified
+availability or evidence of AI capability**. New model IDs require no source
+edits. Eligibility requires an enabled declaration covering **both** languages
+and the algorithm. The eligible list is sorted by exact model ID; the first is
+selected unless an exact model is requested. Unknown, disabled, or ineligible
+requested models never silently fall back.
+
+Normal `python -m edition2` runs append a crosscode report only when `requests`
+is nonempty; default output and ConductorX's role-metadata validation are
+unchanged. The matcher does not execute models/snippets, infer equivalence of
+user code, translate arbitrary programs, chain mappings, rewrite files, or
+access the network.
+
+`CrosscodeMatcher.batch()` uses `PerformanceController.effective_workers` and a
+thread pool: default **4**, configured integer bound **1–32**, caller request
+**1–256** clamped to that bound and batch size. Threads coordinate matching;
+they do not guarantee CPU acceleration. Batches are capped at **256 expanded
+requests**, identifiers at **128 characters**, and registered snippets/semantics
+at **8192 characters**. Booleans, fractional/nonfinite worker values, unknown
+fields, malformed requests, and unknown model capabilities are rejected.
+Results preserve input order, with success/unsupported counts, configured
+bound, effective pool concurrency (zero for an empty batch), elapsed seconds,
+and requests/second. Concurrency is a pool limit, not measured CPU parallelism.
+Timings vary; reference results and model selection are deterministic.
+
+For extensions, pass explicit language/alias and algorithm/variant mappings to
+`ReferenceCatalog(languages=..., algorithms=...)`, then pass that catalog to
+`CrosscodeMatcher`. Adding a language alone never creates an algorithm variant.
+
 ### PPT — Performance Personal Tuner
 
 The **Performance Personal Tuner** (`edition2/ppt.py`) lets every user refine the platform's performance to their own needs. It ships a broad **target registry** and validates per-user **tuning profiles** against it, clamping every knob to a safe bound.

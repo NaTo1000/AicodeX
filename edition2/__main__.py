@@ -35,6 +35,8 @@ def _load_config(path: Path) -> dict:
         data = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise ConfigError(f"Configuration file is not valid JSON: {path}") from exc
+    except (OSError, UnicodeError) as exc:
+        raise ConfigError(f"Cannot read configuration file: {path}") from exc
     if not isinstance(data, dict):
         raise ConfigError(f"Configuration root must be a JSON object: {path}")
     return data
@@ -78,6 +80,16 @@ def build_parser() -> argparse.ArgumentParser:
                         help="write the public community forum page to PATH")
     parser.add_argument("--crossover", action="store_true",
                         help="list the crossover code & emulation database")
+    parser.add_argument("--crosscode", nargs=3, metavar=("SOURCE", "TARGET", "ALGORITHM"),
+                        help="match curated offline references; TARGET may be 'all'")
+    parser.add_argument("--crosscode-catalog", action="store_true",
+                        help="list language aliases, algorithms, and declared model capabilities")
+    parser.add_argument("--crosscode-model", metavar="MODEL",
+                        help="require this exact declared model label for --crosscode")
+    parser.add_argument("--crosscode-workers", type=int, metavar="N",
+                        help="request 1–256 workers for --crosscode, capped by configuration")
+    parser.add_argument("--crosscode-json", action="store_true",
+                        help="emit JSON for --crosscode or --crosscode-catalog")
     parser.add_argument("--style-fingerprint", metavar="CODE",
                         help="infer a style fingerprint from an inline code "
                              "sample and print it")
@@ -119,6 +131,27 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Optional[List[str]] = None) -> int:
     args = build_parser().parse_args(argv)
 
+    crosscode_mode = args.crosscode is not None or args.crosscode_catalog
+    other_modes = (
+        "version", "list_roles", "backends", "hive", "metrics", "metrics_html",
+        "hf_catalog", "monitor", "cob_report", "forum_html", "crossover",
+        "style_fingerprint", "prompts", "decipher_prompts", "align_prompts",
+        "ppt", "ppt_profile", "ppt_mesh", "ppt_tier", "reviver", "reviver_scan",
+        "reviver_testbed", "include_disabled",
+    )
+    if ((args.crosscode_model is not None or args.crosscode_workers is not None)
+            and args.crosscode is None):
+        print("error: model/worker modifiers require --crosscode", file=sys.stderr)
+        return 2
+    if args.crosscode_json and not crosscode_mode:
+        print("error: --crosscode-json requires --crosscode or --crosscode-catalog", file=sys.stderr)
+        return 2
+    if crosscode_mode and (args.crosscode is not None and args.crosscode_catalog
+                          or any(getattr(args, name) is not None
+                                 and getattr(args, name) is not False for name in other_modes)):
+        print("error: crosscode modes cannot be combined with other modes", file=sys.stderr)
+        return 2
+
     if args.version:
         print(f"AicodeX Edition 2 version {__version__}")
         return 0
@@ -132,9 +165,41 @@ def main(argv: Optional[List[str]] = None) -> int:
     vault = SecretsVault(Path(args.vault))
     try:
         registry = RoleRegistry(config.get("roles", {}), vault=vault)
+        from .crosscode import CrosscodeMatcher
+        matcher = CrosscodeMatcher(config.get("crosscode", {}), registry.all_roles())
     except ConfigError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
+
+    if crosscode_mode:
+        try:
+            if args.crosscode_catalog:
+                catalog = matcher.describe()
+                if args.crosscode_json:
+                    print(json.dumps(catalog, indent=2))
+                else:
+                    print("Crosscode — offline curated reference catalog")
+                    for language, aliases in sorted(catalog["languages"].items()):
+                        print(f"  {language}: aliases={', '.join(aliases) or 'none'}")
+                    for algorithm, entry in sorted(catalog["algorithms"].items()):
+                        print(f"  {algorithm}: {', '.join(sorted(entry['variants']))}")
+                        print(f"    {entry['semantics']}")
+                    print(catalog["model_status"])
+                    for model in catalog["models"]:
+                        print(f"  {model['model_id']} ({model['provider']}) "
+                              f"enabled={model['enabled']} languages={','.join(model['languages'])} "
+                              f"algorithms={','.join(model['algorithms'])}")
+                return 0
+            source, target, algorithm = args.crosscode
+            request = {"source_lang": source, "target_lang": target, "algorithm": algorithm}
+            if args.crosscode_model is not None:
+                request["model"] = args.crosscode_model
+            batch = matcher.batch([request], workers=args.crosscode_workers)
+            print(json.dumps(batch.as_dict(), indent=2) if args.crosscode_json else batch.render())
+            return 1 if batch.unsupported else 0
+        except ConfigError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
 
     if args.list_roles:
         for role in registry.all_roles():
@@ -350,7 +415,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     report = ConductorX(registry).conduct(
         only_enabled=not args.include_disabled, seeds=seeds)
     print(report.render())
-    return 1 if report.failed else 0
+    crosscode_failed = False
+    if matcher.requests:
+        batch = matcher.batch(matcher.requests)
+        print(batch.render())
+        crosscode_failed = bool(batch.unsupported)
+    return 1 if report.failed or crosscode_failed else 0
 
 
 if __name__ == "__main__":  # pragma: no cover
